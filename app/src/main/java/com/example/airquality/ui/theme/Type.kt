@@ -5,6 +5,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.font.Font
+import com.example.airquality.R
 
 // Set of Material typography styles to start with
 val Typography = Typography(
@@ -26,3 +28,8 @@ val Typography = Typography(
     )
     */
 )
+
+val black = FontFamily(Font(R.font.roboto_black))
+val bold = FontFamily(Font(R.font.roboto_bold))
+val medium = FontFamily(Font(R.font.roboto_medium))
+val regular = FontFamily(Font(R.font.roboto_regular))
