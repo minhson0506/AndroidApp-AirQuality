@@ -19,14 +19,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.airquality.R
-import com.example.airquality.ui.theme.AirQualityTheme
-import com.example.airquality.ui.theme.LightBlue
-import com.example.airquality.ui.theme.Red
-import com.example.airquality.ui.theme.bold
+import com.example.airquality.ui.theme.*
 
 @Composable
-fun LandingPage() {
+fun LandingPage(navController: NavController) {
     // get size of phone's screen
     val screenPixelDensity = LocalContext.current.resources.displayMetrics.density
     val dpValue = Resources.getSystem().displayMetrics.widthPixels / screenPixelDensity
@@ -71,12 +69,13 @@ fun LandingPage() {
                     .align(CenterHorizontally)
                     .width(cardSize.dp)
                     .height(60.dp),
-                onClick = {}
+                onClick = { navController.navigate("main") }
 
             ) {
                 Text(
                     stringResource(id = R.string.wifi),
                     textAlign = TextAlign.Center,
+                    color = Black,
                     fontSize = 18.sp,
                     fontFamily = bold
                 )
@@ -94,21 +93,11 @@ fun LandingPage() {
                 Text(
                     stringResource(id = R.string.cloud),
                     textAlign = TextAlign.Center,
+                    color = Black,
                     fontFamily = bold,
                     fontSize = 18.sp
                 )
             }
         }
-
-
-    }
-
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    AirQualityTheme {
-        LandingPage()
     }
 }
