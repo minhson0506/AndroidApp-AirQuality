@@ -1,15 +1,23 @@
 package com.example.airquality.libraryComponent
 
+import android.content.res.Resources
+import android.widget.Toast
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.airquality.ui.theme.*
+import com.madrapps.plot.line.DataPoint
+import com.madrapps.plot.line.LineGraph
+import com.madrapps.plot.line.LinePlot
 
 // TextView
 @Composable
@@ -101,5 +109,87 @@ fun NumberText(
         fontFamily = font,
         fontSize = size.sp,
         modifier = Modifier.padding(top = 15.dp)
+    )
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun DropDownComp() {
+
+    val contextForToast = LocalContext.current.applicationContext
+
+    val listItems = arrayOf("Favorites", "Options", "Settings", "Share")
+
+    var selectedItem by remember {
+        mutableStateOf(listItems[0])
+    }
+
+    var expanded by remember {
+        mutableStateOf(false)
+    }
+
+    // the box
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = {
+            expanded = !expanded
+        }
+    ) {
+
+        // text field
+        TextField(
+            value = selectedItem,
+            onValueChange = {},
+            readOnly = true,
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(
+                    expanded = expanded
+                )
+            },
+            colors = ExposedDropdownMenuDefaults.textFieldColors(backgroundColor = Color.White)
+        )
+
+        // menu
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            listItems.forEach { selectedOption ->
+                // menu item
+                DropdownMenuItem(onClick = {
+                    selectedItem = selectedOption
+                    Toast.makeText(contextForToast, selectedOption, Toast.LENGTH_SHORT).show()
+                    expanded = false
+                }) {
+                    Text(text = selectedOption)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun SampleLineGraph(lines: List<List<DataPoint>>) {
+    // get size of phone's screen
+    val screenPixelDensity = LocalContext.current.resources.displayMetrics.density
+    val dpValue = Resources.getSystem().displayMetrics.widthPixels / screenPixelDensity
+    val cardSize = dpValue * 0.8
+
+    LineGraph(
+        plot = LinePlot(
+            listOf(
+                LinePlot.Line(
+                    lines[0],
+                    LinePlot.Connection(color = Red),
+                    LinePlot.Intersection(color = Red),
+                    LinePlot.Highlight(color = Yellow),
+                )
+            ),
+            grid = LinePlot.Grid(Red, steps = 4),
+        ),
+        modifier = Modifier.width(cardSize.dp).height(300.dp),
+        onSelection = { xLine, points ->
+            // Do whatever you want here
+        }
     )
 }

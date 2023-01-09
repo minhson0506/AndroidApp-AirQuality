@@ -60,6 +60,13 @@ dependencies {
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_ui_version"
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_ui_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_ui_version"
+    //nav
     def nav_version = "2.5.3"
     implementation "androidx.navigation:navigation-compose:$nav_version"
+
+    //calendar
+    implementation("com.himanshoe:kalendar:1.1.0")
+
+    //chart
+    implementation 'com.github.madrapps:plot:0.1.1'
 }
