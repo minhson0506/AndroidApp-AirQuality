@@ -2,11 +2,16 @@ package com.example.airquality.libraryComponent
 
 import android.content.res.Resources
 import android.widget.Toast
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -31,7 +36,8 @@ fun TextTitle(
         text = stringResource(id = id),
         color = color,
         fontFamily = font,
-        fontSize = size.sp
+        fontSize = size.sp,
+        modifier = Modifier.padding(start = 10.dp)
     )
 }
 
@@ -52,13 +58,13 @@ fun Headline(
 
 @Composable
 fun NormalText(
-    id: Int,
-    size: Int = 20,
-    color: Color = Color.White,
+    text: String,
+    size: Int = 18,
+    color: Color = Color.Black,
     font: FontFamily = medium,
 ) {
     Text(
-        text = stringResource(id = id),
+        text = text,
         color = color,
         fontFamily = font,
         fontSize = size.sp
@@ -187,9 +193,31 @@ fun SampleLineGraph(lines: List<List<DataPoint>>) {
             ),
             grid = LinePlot.Grid(Red, steps = 4),
         ),
-        modifier = Modifier.width(cardSize.dp).height(300.dp),
+        modifier = Modifier
+            .width(cardSize.dp)
+            .height(300.dp),
         onSelection = { xLine, points ->
             // Do whatever you want here
         }
     )
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun SampleSlider(text: String, minValue: Float, maxValue: Float, min: Float, max: Float) {
+    var range by remember { mutableStateOf(min..max) }
+
+    Column(modifier = Modifier.padding(10.dp)) {
+        NormalText(text = text)
+        RangeSlider(
+            values = range,
+            onValueChange = { range = it },
+            valueRange = minValue..maxValue,
+            colors = SliderDefaults.colors(
+                thumbColor = Blue,
+                activeTrackColor = Gray,
+                inactiveTrackColor = LightGray,
+            ),
+        )
+    }
 }
