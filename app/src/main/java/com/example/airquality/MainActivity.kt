@@ -51,6 +51,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colors.background) {
                     Greeting("Android")
                 }
+
             }
         }
     }
@@ -99,12 +100,36 @@ fun Greeting(name: String) {
 fun connectWifi(context: Context) {
 //    getWifi(context = context)
     Log.d("airquality", "connectWifi: start to try ")
-    connect(context, "ssid", "password")
-
+//    connect(context, "ssid", "password")
+scan(context)
 }
 
 
 fun disconnectWifi() {
+
+}
+
+fun scan(context: Context) {
+    val tag = "airquality"
+    WifiUtils.withContext(context).scanWifi(::getScanResults).start()
+
+
+}
+
+fun getScanResults(result: List<ScanResult>) {
+    val tag = "airquality"
+
+    if (result.isEmpty()) {
+        Log.d(tag, "getScanResults: empty")
+        return
+    }
+    Log.d(tag, "getScanResults: " + result.size)
+
+    Log.d(tag, "getScanResults: " + result )
+
+    Log.d(tag, "getScanResults first item: " + result[0] )
+
+    Log.d(tag, "getScanResults first item: " + result[0].toString().split(",")[0] )
 
 }
 
