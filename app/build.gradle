@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.airquality"
-        minSdk 26
+        minSdk 29
         targetSdk 33
         versionCode 1
         versionName "1.0"
@@ -46,6 +46,10 @@ android {
     }
 }
 
+ext.retrofit_version = '2.9.0'
+ext.moshi_version = '2.9.0'
+ext.okhttp_version = '4.9.0'
+
 dependencies {
 
     implementation 'androidx.core:core-ktx:1.7.0'
@@ -60,4 +64,13 @@ dependencies {
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_ui_version"
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_ui_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_ui_version"
+
+    //retrofit
+    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+    implementation "com.squareup.retrofit2:converter-moshi:$moshi_version"
+    implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
+
+    //wifi
+    implementation("io.github.thanosfisherman.wifiutils:wifiutils:1.6.6")
+
 }
