@@ -32,6 +32,7 @@ import com.example.airquality.components.Dashboard
 import com.example.airquality.components.LandingPage
 import com.example.airquality.components.Settings
 import com.example.airquality.ui.theme.AirQualityTheme
+import com.example.airquality.ui.theme.Blue
 import com.example.airquality.ui.theme.White
 import com.example.airquality.ui.theme.regular
 
@@ -95,23 +96,27 @@ fun BottomNavigationBar(navController: NavController) {
         BottomNavItem.Setting,
 
         )
+
     BottomNavigation(
         backgroundColor = Color.White,
     ) {
+        val backStackEntry = navController.currentBackStackEntryAsState()
         items.forEach { item ->
+            val currentRoute = backStackEntry.value?.destination?.route;
+            val selected = currentRoute == item.screen_route
             BottomNavigationItem(
                 icon = {
                     Image(
                         painterResource(id = item.icon),
                         contentDescription = item.title,
                         modifier = Modifier.size(25.dp),
-                        colorFilter = ColorFilter.tint(color = Color.Black)
+                        colorFilter = if(selected) ColorFilter.tint(color = Blue) else ColorFilter.tint(color = Color.Black)
                     )
                 },
                 label = {
                     Text(
                         text = item.title,
-                        color = Color.Black,
+                        color = if(selected) Blue else Color.Black,
                         fontFamily = regular
                     )
                 },

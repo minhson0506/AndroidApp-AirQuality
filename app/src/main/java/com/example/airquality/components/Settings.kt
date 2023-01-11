@@ -37,14 +37,14 @@ fun Settings() {
     val cardSize = dpValue * 0.9
 
     val data = listOf(
-        Triple("Pm10", Pair(0.4f, 0.8f), Pair(0.2f, 1.0f)),
-        Triple("Pm2.5", Pair(0.5f, 1.8f), Pair(0.2f, 2.0f)),
-        Triple("CO2", Pair(200f, 650f), Pair(100f, 800f)),
-        Triple("Humidity", Pair(2f, 15f), Pair(1f, 30f)),
-        Triple("Light", Pair(20f, 40f), Pair(10f, 60f)),
-        Triple("Noise", Pair(30f, 120f), Pair(10f, 150f)),
-        Triple("Pressure", Pair(950f, 1050f), Pair(900f, 1100f)),
-        Triple("Temperature", Pair(18f, 30f), Pair(10f, 55f))
+        Triple(Pair("Pm10", 0.1f), Pair(0.4f, 0.8f), Pair(0.2f, 1.0f)),
+        Triple(Pair("Pm2.5", 0.1f), Pair(0.5f, 1.8f), Pair(0.2f, 2.0f)),
+        Triple(Pair("CO2", 10f), Pair(200f, 650f), Pair(100f, 800f)),
+        Triple(Pair("Humidity", 1f), Pair(2f, 15f), Pair(1f, 30f)),
+        Triple(Pair("Light", 10f), Pair(20f, 40f), Pair(10f, 60f)),
+        Triple(Pair("Noise", 10f), Pair(30f, 120f), Pair(10f, 150f)),
+        Triple(Pair("Pressure", 10f), Pair(950f, 1050f), Pair(900f, 1100f)),
+        Triple(Pair("Temperature", 1f), Pair(18f, 30f), Pair(10f, 55f))
     )
 
     Column(
@@ -105,7 +105,7 @@ fun Settings() {
             }
         }
         Card(
-            modifier = Modifier
+            modifier = Modifier.padding(bottom = 20.dp)
                 .width(cardSize.dp)
                 .padding(top = 20.dp)
         ) {
@@ -125,11 +125,12 @@ fun Settings() {
                     Column( modifier = Modifier.verticalScroll(rememberScrollState())) {
                         for (item in data) {
                             SampleSlider(
-                                text = item.first,
+                                text = item.first.first,
                                 minValue = item.second.first,
                                 maxValue = item.second.second,
                                 min = item.third.first,
-                                max = item.third.second
+                                max = item.third.second,
+                                step = item.first.second
                             )
                         }
                     }

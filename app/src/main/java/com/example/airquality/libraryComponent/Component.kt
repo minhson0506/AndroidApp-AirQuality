@@ -124,7 +124,7 @@ fun DropDownComp() {
 
     val contextForToast = LocalContext.current.applicationContext
 
-    val listItems = arrayOf("Favorites", "Options", "Settings", "Share")
+    val listItems = arrayOf("PM10", "Pm2.5", "CO2", "Humidity", "Light", "Noise", "Pressure", "Temperature")
 
     var selectedItem by remember {
         mutableStateOf(listItems[0])
@@ -204,11 +204,12 @@ fun SampleLineGraph(lines: List<List<DataPoint>>) {
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun SampleSlider(text: String, minValue: Float, maxValue: Float, min: Float, max: Float) {
+fun SampleSlider(text: String, minValue: Float, maxValue: Float, min: Float, max: Float, step: Float) {
     var range by remember { mutableStateOf(min..max) }
 
     Column(modifier = Modifier.padding(10.dp)) {
         NormalText(text = text)
+        Text(text = range.toString())
         RangeSlider(
             values = range,
             onValueChange = { range = it },
@@ -218,6 +219,7 @@ fun SampleSlider(text: String, minValue: Float, maxValue: Float, min: Float, max
                 activeTrackColor = Gray,
                 inactiveTrackColor = LightGray,
             ),
+            steps = step.toInt()
         )
     }
 }
