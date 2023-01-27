@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
 }
 
 android {
@@ -46,6 +47,10 @@ android {
     }
 }
 
+ext.retrofit_version = '2.9.0'
+ext.moshi_version = '2.9.0'
+ext.okhttp_version = '4.9.0'
+
 dependencies {
 
     implementation 'androidx.core:core-ktx:1.7.0'
@@ -69,4 +74,14 @@ dependencies {
 
     //chart
     implementation 'com.github.madrapps:plot:0.1.1'
+
+    //retrofit
+    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+    implementation "com.squareup.retrofit2:converter-moshi:$moshi_version"
+    implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
+    implementation 'com.squareup.retrofit2:converter-gson:2.5.0'
+
+
+    //wifi
+    implementation("io.github.thanosfisherman.wifiutils:wifiutils:1.6.6")
 }
