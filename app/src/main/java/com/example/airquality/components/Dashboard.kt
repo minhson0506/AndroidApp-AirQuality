@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntOffset
@@ -30,20 +31,33 @@ import com.example.airquality.R
 import com.example.airquality.libraryComponent.Headline
 import com.example.airquality.libraryComponent.NumberText
 import com.example.airquality.libraryComponent.UnitText
+import com.example.airquality.services.DataViewModel
+import com.example.airquality.services.sensors.Api
+import com.example.airquality.services.sensors.SensorResponse
 import com.example.airquality.ui.theme.*
+import com.google.gson.annotations.SerializedName
 import org.json.JSONArray
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.TimeUnit
 
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
 @Composable
-fun Dashboard() {
+fun Dashboard(model: DataViewModel) {
     val TAG = "airquality"
+
+    val sensorData: SensorResponse? by model.sensorData.observeAsState(null)
+//    val index: Int by model.index.observeAsState(0)
 
     val array = listOf(
         null, null,
         Triple(
             Pair("Pm10", R.drawable.wind),
-            0.6,
+            sensorData?.pm10,
             Pair(
                 "µg/m3",
                 "Particle density of particulate Matter(PM) in size range 0.3µm to 10.0µm in µg/m3"
@@ -51,7 +65,7 @@ fun Dashboard() {
         ),
         Triple(
             Pair("Pm2.5", R.drawable.wind),
-            1.85,
+            sensorData?.pm2,
             Pair(
                 "µg/m3",
                 "Particle density of particulate Matter(PM) in size range 0.3µm to 2.5µm in µg/m3"
@@ -61,25 +75,32 @@ fun Dashboard() {
             Pair(
                 "CO2", R.drawable.co2
             ),
-            674.0,
+            sensorData?.co2,
             Pair("ppm", "Carbon dioxide in ppm")
         ),
-        Triple(Pair("Humidity", R.drawable.humidity), 12.72, Pair("RH", "Humidity in %RH")),
-        Triple(Pair("Light", R.drawable.light), 310.76, Pair("lux", "Lighting in lux")),
+        Triple(Pair("Humidity", R.drawable.humidity),
+            sensorData?.hum,
+            Pair("RH", "Humidity in %RH")),
+        Triple(Pair("Light", R.drawable.light), sensorData?.lux, Pair("lux", "Lighting in lux")),
         Triple(
             Pair("Noise", R.drawable.sound),
-            -60.97,
+            sensorData?.noise,
             Pair("dB", "Loudness in dB")
         ),
-        Triple(Pair("Pressure", R.drawable.pressure), 1017.14, Pair("hPa", "Pressure in hPa")),
+        Triple(Pair("Pressure", R.drawable.pressure), sensorData?.pres, Pair("hPa", "Pressure in hPa")),
         Triple(
             Pair(
                 "Temp", R.drawable.temp
             ),
-            42.65,
+            sensorData?.temp,
             Pair("°C", "Temperature in °C")
         ),
     )
+
+    var scheduledExecutorService: ScheduledExecutorService =
+        Executors.newSingleThreadScheduledExecutor()
+
+    UpdateData(scheduledExecutorService = scheduledExecutorService, model = model)
 
     Column(
         modifier = Modifier
@@ -96,6 +117,7 @@ fun Dashboard() {
             Column() {
                 Headline(text = "ISD420")
                 Text("KMC 752", fontFamily = medium, fontSize = 18.sp, color = DarkGray)
+                Text("Time get data: ${sensorData?.time}")
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -120,43 +142,46 @@ fun Dashboard() {
         ) {
             items(array) {
 
-                    var popupControl by remember { mutableStateOf(false) }
+                var popupControl by remember { mutableStateOf(false) }
 
-                    Log.d(TAG, "Dashboard: ${it?.first} & popup $popupControl")
-                    if (popupControl) {
-                        Log.d(TAG, "Dashboard: in popup ${it?.first}")
-                        Popup(
-                            alignment = Alignment.BottomCenter,
-                            properties = PopupProperties(dismissOnClickOutside = true),
-                            onDismissRequest = { popupControl = false }) {
-                            Box(
-                                Modifier
-                                    .size(300.dp, 100.dp)
-                                    .padding(top = 5.dp)
-                                    .background(LightBlue, RoundedCornerShape(10.dp))
-                                    .border(1.dp, color = Color.Black, RoundedCornerShape(10.dp))
+                Log.d(TAG, "Dashboard: ${it?.first} & popup $popupControl")
+                if (popupControl) {
+                    Log.d(TAG, "Dashboard: in popup ${it?.first}")
+                    Popup(
+                        alignment = Alignment.BottomCenter,
+                        properties = PopupProperties(dismissOnClickOutside = true),
+                        onDismissRequest = { popupControl = false }) {
+                        Box(
+                            Modifier
+                                .size(300.dp, 100.dp)
+                                .padding(top = 5.dp)
+                                .background(LightBlue, RoundedCornerShape(10.dp))
+                                .border(1.dp, color = Color.Black, RoundedCornerShape(10.dp))
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(horizontal = 20.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
                             ) {
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(horizontal = 20.dp),
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center
-                                ) {
-                                    it?.third?.second?.let { it1 ->
-                                        Text(
-                                            text = it1,
-                                            color = Color.Black,
-                                            modifier = Modifier.padding(vertical = 5.dp),
-                                            fontFamily = medium
-                                        )
-                                    }
+                                it?.third?.second?.let { it1 ->
+                                    Text(
+                                        text = it1,
+                                        color = Color.Black,
+                                        modifier = Modifier.padding(vertical = 5.dp),
+                                        fontFamily = medium
+                                    )
                                 }
                             }
                         }
                     }
-                if(it == null) {
-                    Card(modifier = Modifier.padding(bottom = 10.dp).height(1.dp), backgroundColor = LightBlue) {
+                }
+                if (it == null) {
+                    Card(modifier = Modifier
+                        .padding(bottom = 10.dp)
+                        .height(1.dp),
+                        backgroundColor = LightBlue) {
                     }
                 } else {
                     Card(
@@ -184,13 +209,13 @@ fun Dashboard() {
                                         .padding(5.dp),
                                     colorFilter = ColorFilter.tint(color = White)
                                 )
-                                    Text(
-                                        text = it.first.first,
-                                        color = Black,
-                                        fontSize = 20.sp,
-                                        fontFamily = bold,
-                                        modifier = Modifier.padding(top = 15.dp, start = 5.dp)
-                                    )
+                                Text(
+                                    text = it.first.first,
+                                    color = Black,
+                                    fontSize = 20.sp,
+                                    fontFamily = bold,
+                                    modifier = Modifier.padding(top = 15.dp, start = 5.dp)
+                                )
 
                             }
                             Column(
@@ -208,10 +233,40 @@ fun Dashboard() {
     }
 }
 
-@Preview(showBackground = true)
+
 @Composable
-fun DashBoardPreview() {
-    AirQualityTheme {
-        Dashboard()
-    }
+fun UpdateData(scheduledExecutorService: ScheduledExecutorService, model: DataViewModel) {
+//    val index: Int by model.index.observeAsState(0)
+    scheduledExecutorService.scheduleAtFixedRate({
+        // repeat task: update new data
+        Api.apiInstance().getLatest().enqueue(object : Callback<SensorResponse> {
+            override fun onResponse(
+                call: Call<SensorResponse>,
+                response: Response<SensorResponse>,
+            ) {
+                Log.d("airquality", "onResponse: " + response.body())
+                if (response.isSuccessful) {
+                    model.sensorData.postValue(SensorResponse(response.body()?.alt,
+                        response.body()?.co2,
+                        response.body()?.deviceId,
+                        response.body()?.deviceName,
+                        response.body()?.hum,
+                        response.body()?.lux,
+                        response.body()?.noise,
+                        response.body()?.pm1,
+                        response.body()?.pm10,
+                        response.body()?.pm2,
+                        response.body()?.pm4,
+                        response.body()?.pres,
+                        response.body()?.temp,
+                        response.body()?.time))
+//                    model.index.postValue(index+1)
+                }
+            }
+
+            override fun onFailure(call: Call<SensorResponse>, t: Throwable) {
+                Log.d("airquality", "onFailure: " + t.message)
+            }
+        })
+    }, 0, 30, TimeUnit.SECONDS)
 }

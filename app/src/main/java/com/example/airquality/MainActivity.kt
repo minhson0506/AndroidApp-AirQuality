@@ -35,6 +35,7 @@ import com.example.airquality.components.ChartPage
 import com.example.airquality.components.Dashboard
 import com.example.airquality.components.LandingPage
 import com.example.airquality.components.Settings
+import com.example.airquality.services.DataViewModel
 import com.example.airquality.ui.theme.AirQualityTheme
 import com.example.airquality.ui.theme.Blue
 import com.example.airquality.ui.theme.White
@@ -43,11 +44,22 @@ import com.example.airquality.ui.theme.regular
 
 class MainActivity : ComponentActivity() {
     val tag = "airquality"
+
+    companion object {
+        private lateinit var model: DataViewModel
+    }
+
     @OptIn(ExperimentalFoundationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
+
+        // check permission
         checkPermission(this)
+
+        // init view model
+        model = DataViewModel(application = application)
+
         setContent {
             val navController = rememberNavController()
             AirQualityTheme {
@@ -56,10 +68,10 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colors.background) {
                     NavHost(navController, startDestination = "landingPage") {
                         composable("landingPage") {
-                            LandingPage(navController)
+                            LandingPage(model, navController)
                         }
                         composable("main") {
-                            MainScreen()
+                            MainScreen(model = model)
                         }
                     }
                 }
@@ -78,11 +90,11 @@ sealed class BottomNavItem(var title: String, var icon: Int, var screen_route: S
 @ExperimentalFoundationApi
 @Composable
 fun NavigationGraph(
-    navController: NavHostController,
+    navController: NavHostController, model: DataViewModel
 ) {
     NavHost(navController, startDestination = BottomNavItem.Home.screen_route) {
         composable(BottomNavItem.Home.screen_route) {
-            Dashboard()
+            Dashboard(model = model)
         }
         composable(BottomNavItem.Chart.screen_route) {
             ChartPage()
@@ -146,7 +158,7 @@ fun BottomNavigationBar(navController: NavController) {
 
 @ExperimentalFoundationApi
 @Composable
-fun MainScreen(
+fun MainScreen( model: DataViewModel
 ) {
     val navController = rememberNavController()
     var showBottomBar by remember { mutableStateOf(true) }
@@ -168,6 +180,7 @@ fun MainScreen(
             Box(modifier = Modifier.padding(innerPadding)) {
                 NavigationGraph(
                     navController = navController,
+                    model = model
                 )
             }
         }
