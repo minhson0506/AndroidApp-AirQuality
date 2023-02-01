@@ -1,25 +1,60 @@
 package com.example.airquality.services
 
 import android.app.Application
-import android.graphics.Bitmap
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import coil.compose.ImagePainter
-import com.example.airquality.services.sensors.SensorResponse
+import com.example.airquality.services.room.RoomDB
+import com.example.airquality.services.room.SensorModel
 import com.example.airquality.services.weather.WeatherResponse
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 class DataViewModel(application: Application): AndroidViewModel(application) {
+    // store list of Wifi networks
     val wifiNetworks = MutableLiveData<List<String>>(null)
 
-//    val index = MutableLiveData<Int>(0)
-
+    // store data of weather in outside
     val weather = MutableLiveData<WeatherResponse?>(null)
-
-    val sensorData = MutableLiveData<SensorResponse>(null)
-
     val image = MutableLiveData<ImagePainter?>(null)
 
-    val lat = MutableLiveData<Double?>(null)
+    // check connection
+    val isOnline = MutableLiveData<Boolean>(true)
+    // store data of sensor in inside
+//    val sensorData = MutableLiveData<SensorResponse>(null)
 
+    // data from Room
+    private val roomDB = RoomDB.getInstance(application)
+    private val viewModelJob = Job()
+    private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Default)
+
+    // get and set data of venues
+    fun getAllData(): LiveData<List<SensorModel>> = roomDB.sensorDao().getAll()
+
+    fun getLatest(): LiveData<SensorModel> = roomDB.sensorDao().getLatest()
+
+    fun insert(sensorModel: SensorModel) {
+        coroutineScope.launch {
+            roomDB.sensorDao().insert(sensorModel)
+        }
+    }
+
+    fun update(sensorModel: SensorModel) {
+        coroutineScope.launch {
+            roomDB.sensorDao().update(sensorModel)
+        }
+    }
+
+    fun delete(sensorModel: SensorModel) {
+        coroutineScope.launch {
+            roomDB.sensorDao().delete(sensorModel)
+        }
+    }
+
+    // store data of location
+    val lat = MutableLiveData<Double?>(null)
     val lon = MutableLiveData<Double?>(null)
 }

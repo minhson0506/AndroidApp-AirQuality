@@ -12,7 +12,7 @@ import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.*
 import com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY
 
-@SuppressLint("MissingPermission")
+@SuppressLint("MissingPermission", "SuspiciousIndentation")
 @Composable
 fun GetLocation(context: Context, activity: Activity, model: DataViewModel) {
     val tag = "venues"

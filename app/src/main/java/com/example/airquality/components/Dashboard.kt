@@ -26,11 +26,13 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import coil.compose.ImagePainter
 import coil.compose.rememberImagePainter
+import com.example.airquality.MainActivity
 import com.example.airquality.R
 import com.example.airquality.libraryComponent.Headline
 import com.example.airquality.libraryComponent.NumberText
 import com.example.airquality.libraryComponent.UnitText
 import com.example.airquality.services.DataViewModel
+import com.example.airquality.services.room.SensorModel
 import com.example.airquality.services.sensors.ApiDevice
 import com.example.airquality.services.sensors.SensorResponse
 import com.example.airquality.services.weather.WeatherResponse
@@ -46,12 +48,9 @@ import java.util.concurrent.TimeUnit
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun Dashboard(model: DataViewModel) {
-    val TAG = "airquality"
-
-    val sensorData: SensorResponse? by model.sensorData.observeAsState(null)
+    val sensorData: SensorModel? by model.getLatest().observeAsState(null)
     val weather: WeatherResponse? by model.weather.observeAsState(null)
     val image: ImagePainter? by model.image.observeAsState(null)
-//    val index: Int by model.index.observeAsState(0)
 
     val array = listOf(
         null, null,
@@ -95,6 +94,20 @@ fun Dashboard(model: DataViewModel) {
             sensorData?.temp,
             Pair("°C", "Temperature in °C")
         ),
+        Triple(
+            Pair(
+                "Pm1", R.drawable.wind
+            ),
+            sensorData?.pm1,
+            Pair("µg/m3", "Particle density of particulate Matter(PM) in size range 0.3µm to 2.5µm in µg/m3")
+        ),
+        Triple(
+            Pair(
+                "Pm4", R.drawable.wind
+            ),
+            sensorData?.pm4,
+            Pair("µg/m3", "Particle density of particulate Matter(PM) in size range 0.3µm to 2.5µm in µg/m3")
+        ),
     )
 
     var scheduledExecutorService: ScheduledExecutorService =
@@ -116,7 +129,10 @@ fun Dashboard(model: DataViewModel) {
         ) {
             Column() {
                 Text("ISD420 KMC 752", fontFamily = medium, fontSize = 18.sp, color = DarkGray)
-                //Text("Time get data: ${sensorData?.time}")
+                Text("Time get data:")
+                val time = sensorData?.time?.split(",")
+                Text(text = "Date: ${time?.get(0)}")
+                Text(text = "Time: ${time?.get(1)?.trim()}")
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -132,11 +148,13 @@ fun Dashboard(model: DataViewModel) {
 
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Log.d(TAG, "Dashboard: in image 1" + image)
+                    Log.d(MainActivity.tag, "Dashboard: in image 1" + image)
                     if (image != null) {
-                        Log.d(TAG, "Dashboard: in image 2" + image)
+                        Log.d(MainActivity.tag, "Dashboard: in image 2" + image)
                         Image(painter = image!!,
-                            contentDescription = weather?.current?.condition?.text, modifier = Modifier.size(50.dp).padding(end = 5.dp))
+                            contentDescription = weather?.current?.condition?.text, modifier = Modifier
+                                .size(50.dp)
+                                .padding(end = 5.dp).background(Color.Red))
                     }
                     Text(weather?.current?.temp.toString() + "°C", fontFamily = medium, fontSize = 18.sp, color = DarkGray)
                 }
@@ -151,9 +169,9 @@ fun Dashboard(model: DataViewModel) {
 
                 var popupControl by remember { mutableStateOf(false) }
 
-                Log.d(TAG, "Dashboard: ${it?.first} & popup $popupControl")
+                Log.d(MainActivity.tag, "Dashboard: ${it?.first} & popup $popupControl")
                 if (popupControl) {
-                    Log.d(TAG, "Dashboard: in popup ${it?.first}")
+                    Log.d(MainActivity.tag, "Dashboard: in popup ${it?.first}")
                     Popup(
                         alignment = Alignment.BottomCenter,
                         properties = PopupProperties(dismissOnClickOutside = true),
@@ -198,7 +216,7 @@ fun Dashboard(model: DataViewModel) {
                         backgroundColor = White,
                         onClick = {
                             popupControl = !popupControl
-                            Log.d(TAG, "Dashboard: ${it.first}")
+                            Log.d(MainActivity.tag, "Dashboard: ${it.first}")
                         }
                     ) {
                         Column(
@@ -243,7 +261,8 @@ fun Dashboard(model: DataViewModel) {
 
 @Composable
 fun UpdateData(scheduledExecutorService: ScheduledExecutorService, model: DataViewModel) {
-//    val index: Int by model.index.observeAsState(0)
+    val sensorData: List<SensorModel>? by model.getAllData().observeAsState(null)
+
     scheduledExecutorService.scheduleAtFixedRate({
         // repeat task: update new data
         ApiDevice.apiInstance().getLatest().enqueue(object : Callback<SensorResponse> {
@@ -251,28 +270,64 @@ fun UpdateData(scheduledExecutorService: ScheduledExecutorService, model: DataVi
                 call: Call<SensorResponse>,
                 response: Response<SensorResponse>,
             ) {
-                Log.d("airquality", "onResponse: " + response.body())
+                Log.d(MainActivity.tag, "onResponse: " + response.body())
                 if (response.isSuccessful) {
-                    model.sensorData.postValue(SensorResponse(response.body()?.alt,
-                        response.body()?.co2,
-                        response.body()?.deviceId,
-                        response.body()?.deviceName,
-                        response.body()?.hum,
-                        response.body()?.lux,
-                        response.body()?.noise,
-                        response.body()?.pm1,
-                        response.body()?.pm10,
-                        response.body()?.pm2,
-                        response.body()?.pm4,
-                        response.body()?.pres,
-                        response.body()?.temp,
-                        response.body()?.time))
-//                    model.index.postValue(index+1)
+                    if (sensorData == null) {
+                        model.insert(SensorModel(
+                            id = 0,
+                            alt = response.body()?.alt,
+                            co2 = response.body()?.co2,
+                            deviceId = response.body()?.deviceId,
+                            deviceName = response.body()?.deviceName,
+                            hum = response.body()?.hum,
+                            lux = response.body()?.lux,
+                            noise = response.body()?.noise,
+                            pm1 = response.body()?.pm1,
+                            pm10 = response.body()?.pm10,
+                            pm2 = response.body()?.pm2,
+                            pm4 = response.body()?.pm4,
+                            pres = response.body()?.pres,
+                            temp = response.body()?.temp,
+                            time = response.body()?.time,
+                        ))
+                    } else if (!sensorData?.map { item -> item.time }?.contains(response.body()?.time)!!) {
+                        model.insert(SensorModel(
+                            id = 0,
+                            alt = response.body()?.alt,
+                            co2 = response.body()?.co2,
+                            deviceId = response.body()?.deviceId,
+                            deviceName = response.body()?.deviceName,
+                            hum = response.body()?.hum,
+                            lux = response.body()?.lux,
+                            noise = response.body()?.noise,
+                            pm1 = response.body()?.pm1,
+                            pm10 = response.body()?.pm10,
+                            pm2 = response.body()?.pm2,
+                            pm4 = response.body()?.pm4,
+                            pres = response.body()?.pres,
+                            temp = response.body()?.temp,
+                            time = response.body()?.time,
+                        ))
+//                            model.sensorData.postValue(SensorResponse(response.body()?.alt,
+//                                response.body()?.co2,
+//                                response.body()?.deviceId,
+//                                response.body()?.deviceName,
+//                                response.body()?.hum,
+//                                response.body()?.lux,
+//                                response.body()?.noise,
+//                                response.body()?.pm1,
+//                                response.body()?.pm10,
+//                                response.body()?.pm2,
+//                                response.body()?.pm4,
+//                                response.body()?.pres,
+//                                response.body()?.temp,
+//                                response.body()?.time))
+                    }
                 }
             }
 
             override fun onFailure(call: Call<SensorResponse>, t: Throwable) {
-                Log.d("airquality", "onFailure: " + t.message)
+                Log.d(MainActivity.tag, "onFailure: " + t.message)
             }
         })
     }, 0, 30, TimeUnit.SECONDS)

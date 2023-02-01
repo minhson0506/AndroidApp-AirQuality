@@ -41,10 +41,10 @@ import com.example.airquality.ui.theme.regular
 
 
 class MainActivity : ComponentActivity() {
-    val tag = "airquality"
 
     companion object {
         private lateinit var model: DataViewModel
+        var tag = "airQuality"
     }
 
     @OptIn(ExperimentalFoundationApi::class)
@@ -90,11 +90,6 @@ class MainActivity : ComponentActivity() {
         Log.d(tag, "onDestroy")
         super.onDestroy()
     }
-}
-
-@Composable
-fun test(model: DataViewModel) {
-
 }
 
 sealed class BottomNavItem(var title: String, var icon: Int, var screen_route: String) {
@@ -205,12 +200,11 @@ fun MainScreen( model: DataViewModel
 }
 
 fun checkPermission(activity: Activity) {
-    val tag = "airquality"
     if (
         (activity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) ||
         (activity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
     ) {
-        Log.d(tag, "No permission")
+        Log.d(MainActivity.tag, "No permission")
         activity.requestPermissions(
             arrayOf(
                 Manifest.permission.ACCESS_FINE_LOCATION,
@@ -223,5 +217,5 @@ fun checkPermission(activity: Activity) {
             Thread.sleep(100)
         }
     }
-    Log.i(tag, "permissions ok")
+    Log.i(MainActivity.tag, "permissions ok")
 }

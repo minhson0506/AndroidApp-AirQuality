@@ -8,6 +8,9 @@ import retrofit2.http.GET
 interface APIDeviceService {
     @GET("getLatest")
     fun getLatest(): Call<SensorResponse>
+
+    @GET("getAll")
+    fun getAll(): Call<List<SensorResponse>>
 }
 
 object ApiDevice {
