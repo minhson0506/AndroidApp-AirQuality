@@ -36,6 +36,7 @@ import com.example.airquality.components.Dashboard
 import com.example.airquality.components.LandingPage
 import com.example.airquality.components.Settings
 import com.example.airquality.services.DataViewModel
+import com.example.airquality.services.GetLocation
 import com.example.airquality.ui.theme.AirQualityTheme
 import com.example.airquality.ui.theme.Blue
 import com.example.airquality.ui.theme.White
@@ -63,6 +64,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
             AirQualityTheme {
+                // start get phone location
+                GetLocation(this, this, model)
                 // A surface container using the 'background' color from the theme
                 Surface(modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background) {
@@ -203,6 +206,7 @@ fun checkPermission(activity: Activity) {
         while ((activity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) ||
             (activity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
         ) {
+            Thread.sleep(100)
         }
     }
     Log.i(tag, "permissions ok")

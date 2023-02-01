@@ -237,7 +237,10 @@ fun connectDevice(ssid: String, context: Context, navController: NavController) 
 
 @Composable
 fun GetWeather(model: DataViewModel) {
-    ApiWeather.apiInstance().getWeather(location = "60.125747,24.411146").enqueue(object : Callback<WeatherResponse> {
+    val lat: Double? by model.lat.observeAsState(null)
+    val lon: Double? by model.lon.observeAsState(null)
+
+    ApiWeather.apiInstance().getWeather(location = lat.toString() + "," + lon).enqueue(object : Callback<WeatherResponse> {
         override fun onResponse(call: Call<WeatherResponse>, response: Response<WeatherResponse>) {
             if (response.isSuccessful) {
                 Log.d("airquality", "onResponse: name " + (response.body()?.location?.name))

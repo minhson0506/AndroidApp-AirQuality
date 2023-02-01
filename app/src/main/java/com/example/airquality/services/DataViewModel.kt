@@ -18,4 +18,8 @@ class DataViewModel(application: Application): AndroidViewModel(application) {
     val sensorData = MutableLiveData<SensorResponse>(null)
 
     val image = MutableLiveData<ImagePainter?>(null)
+
+    val lat = MutableLiveData<Double?>(null)
+
+    val lon = MutableLiveData<Double?>(null)
 }

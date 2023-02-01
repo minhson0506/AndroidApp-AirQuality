@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
+    id "org.jetbrains.kotlin.kapt"
 }
 
 android {
@@ -87,4 +88,14 @@ dependencies {
 
     // Coil
     implementation "io.coil-kt:coil-compose:1.4.0"
+
+    // Google APIs
+    implementation 'com.google.android.gms:play-services-location:20.0.0'
+
+    // roomdb
+    def roomVersion = "2.5.0-alpha02"
+    implementation "androidx.room:room-runtime:$roomVersion"
+    annotationProcessor "androidx.room:room-compiler:$roomVersion"
+    // To use Kotlin annotation processing tool (kapt)
+    kapt "androidx.room:room-compiler:$roomVersion"
 }
