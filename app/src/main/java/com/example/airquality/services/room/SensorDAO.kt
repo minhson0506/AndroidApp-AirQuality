@@ -19,4 +19,7 @@ interface SensorDAO {
 
     @Query("SELECT * FROM sensormodel WHERE id = ( SELECT MAX(id) FROM sensormodel)")
     fun getLatest(): LiveData<SensorModel>
+
+    @Query("SELECT * FROM sensormodel WHERE time LIKE :date")
+    fun getDataInDate(date: String): LiveData<List<SensorModel>>
 }

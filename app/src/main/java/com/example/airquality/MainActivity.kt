@@ -109,7 +109,7 @@ fun NavigationGraph(
             Dashboard(model = model)
         }
         composable(BottomNavItem.Chart.screen_route) {
-            ChartPage()
+            ChartPage(model = model)
         }
         composable(BottomNavItem.Setting.screen_route) {
             Settings()

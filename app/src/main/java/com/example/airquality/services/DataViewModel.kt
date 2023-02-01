@@ -26,6 +26,7 @@ class DataViewModel(application: Application): AndroidViewModel(application) {
     // store data of sensor in inside
 //    val sensorData = MutableLiveData<SensorResponse>(null)
 
+    val indicator = MutableLiveData<String>("pm10")
     // data from Room
     private val roomDB = RoomDB.getInstance(application)
     private val viewModelJob = Job()
@@ -35,6 +36,8 @@ class DataViewModel(application: Application): AndroidViewModel(application) {
     fun getAllData(): LiveData<List<SensorModel>> = roomDB.sensorDao().getAll()
 
     fun getLatest(): LiveData<SensorModel> = roomDB.sensorDao().getLatest()
+
+    fun getDataInDate(date: String): LiveData<List<SensorModel>> = roomDB.sensorDao().getDataInDate(date = date)
 
     fun insert(sensorModel: SensorModel) {
         coroutineScope.launch {
@@ -57,4 +60,5 @@ class DataViewModel(application: Application): AndroidViewModel(application) {
     // store data of location
     val lat = MutableLiveData<Double?>(null)
     val lon = MutableLiveData<Double?>(null)
+
 }

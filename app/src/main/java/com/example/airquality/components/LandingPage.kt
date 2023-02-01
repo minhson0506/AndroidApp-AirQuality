@@ -97,7 +97,10 @@ fun LandingPage(model: DataViewModel, navController: NavController) {
         }
 
         if (wifiName != null) {
-            connectDevice(ssid = wifiName!!, context = context, navController = navController, model = model)
+            connectDevice(ssid = wifiName!!,
+                context = context,
+                navController = navController,
+                model = model)
         }
 
         Column(
@@ -113,7 +116,6 @@ fun LandingPage(model: DataViewModel, navController: NavController) {
                     .width(cardSize.dp)
                     .height(60.dp),
                 onClick = {
-//                    navController.navigate("main")
                     scanWifi(model, context)
                 }
 
@@ -135,6 +137,8 @@ fun LandingPage(model: DataViewModel, navController: NavController) {
                 colors = ButtonDefaults.buttonColors(backgroundColor = LightBlue),
                 onClick = {
                     // for cloud
+                    navController.navigate("main")
+
                 }
             ) {
                 Text(

@@ -23,4 +23,21 @@ data class SensorModel(
     val temp: Double?,
     val time: String?,
     val cloud: Boolean = false
-)
+) {
+    fun getValue(indicator: String): Double? {
+        return when (indicator) {
+            "alt" -> alt
+            "co2" -> co2
+            "hum" -> hum
+            "lux" -> lux
+            "noise" -> noise
+            "pm1" -> pm1
+            "pm10" -> pm10
+            "pm2" -> pm2
+            "pm4" -> pm4
+            "pres" -> pres
+            "temp" -> temp
+            else -> 0.0
+        }
+    }
+}

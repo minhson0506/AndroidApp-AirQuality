@@ -19,6 +19,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.airquality.services.DataViewModel
 import com.example.airquality.ui.theme.*
 import com.madrapps.plot.line.DataPoint
 import com.madrapps.plot.line.LineGraph
@@ -120,11 +121,9 @@ fun NumberText(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun DropDownComp() {
+fun DropDownComp(model: DataViewModel) {
 
-    val contextForToast = LocalContext.current.applicationContext
-
-    val listItems = arrayOf("PM10", "Pm2.5", "CO2", "Humidity", "Light", "Noise", "Pressure", "Temperature")
+    val listItems = arrayOf("PM10", "Pm2.5", "CO2", "Humidity", "Light", "Noise", "Pressure", "Temperature", "Pm1", "Pm4")
 
     var selectedItem by remember {
         mutableStateOf(listItems[0])
@@ -164,7 +163,8 @@ fun DropDownComp() {
                 // menu item
                 DropdownMenuItem(onClick = {
                     selectedItem = selectedOption
-                    Toast.makeText(contextForToast, selectedOption, Toast.LENGTH_SHORT).show()
+                    model.indicator.postValue(selectedOption)
+//                    Toast.makeText(contextForToast, selectedOption, Toast.LENGTH_SHORT).show()
                     expanded = false
                 }) {
                     Text(text = selectedOption)

@@ -71,7 +71,7 @@ dependencies {
     implementation "androidx.navigation:navigation-compose:$nav_version"
 
     //calendar
-    implementation("com.himanshoe:kalendar:1.1.0")
+    implementation 'com.github.mateusz800:Expandable-Compose-Calendar:1.0.0'
 
     //chart
     implementation 'com.github.madrapps:plot:0.1.1'
