@@ -41,6 +41,7 @@ import com.thanosfisherman.wifiutils.wifiDisconnect.DisconnectionErrorCode
 import com.thanosfisherman.wifiutils.wifiDisconnect.DisconnectionSuccessListener
 import com.thanosfisherman.wifiutils.wifiRemove.RemoveErrorCode
 import com.thanosfisherman.wifiutils.wifiRemove.RemoveSuccessListener
+import com.thanosfisherman.wifiutils.wifiScan.ScanResultsListener
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Call
@@ -49,6 +50,8 @@ import retrofit2.Response
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
+import kotlin.concurrent.thread
+import kotlin.math.log
 
 
 @Composable
@@ -61,26 +64,25 @@ fun LandingPage(model: DataViewModel, navController: NavController) {
 
     val wifiNetworks: List<String>? by model.wifiNetworks.observeAsState(null)
     val weather: WeatherResponse? by model.weather.observeAsState(null)
-        val image: ImagePainter? by model.image.observeAsState(null)
+    val image: ImagePainter? by model.image.observeAsState(null)
 
 
     var displayNetwork by remember { mutableStateOf<Boolean>(false) }
     var tryConnect by remember { mutableStateOf<Boolean>(false) }
     var wifiName by remember { mutableStateOf<String?>(null) }
 
+    Log.d("airquality", "LandingPage: $wifiNetworks")
+    val wifiManager = context.getSystemService(Context.WIFI_SERVICE).toString()
+    Log.d("airquality", "WifiManager: $wifiManager")
+
     GetWeather(model = model)
 
-     Column(
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        if (image != null) {
-            Log.d("airquality", "Dashboard: in image" + image)
-            Image(painter = image!!,
-                contentDescription = weather?.current?.condition?.text, modifier = Modifier.size(100.dp))
-        }
         Column(
             modifier = Modifier
                 .fillMaxWidth(),
@@ -103,15 +105,19 @@ fun LandingPage(model: DataViewModel, navController: NavController) {
             )
         }
 
-        if (displayNetwork) {
-            Column(modifier = Modifier
-                .fillMaxWidth()
-                .align(CenterHorizontally)) {
-                Text(text = "Wifi Networks", modifier = Modifier.align(CenterHorizontally))
-                Column(modifier = Modifier
+        if (!wifiNetworks.isNullOrEmpty()) {
+            Column(
+                modifier = Modifier
                     .fillMaxWidth()
-                    .height((dpValue * 0.3).dp)
-                    .verticalScroll(rememberScrollState())) {
+                    .align(CenterHorizontally)
+            ) {
+                Text(text = "Wifi Networks", modifier = Modifier.align(CenterHorizontally))
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height((dpValue * 0.3).dp)
+                        .verticalScroll(rememberScrollState())
+                ) {
 //                    wifiNetworks?.forEach { item -> Text(text = item, modifier = Modifier
 //                        .height(20.dp)
 //                        .align(CenterHorizontally)
@@ -125,7 +131,7 @@ fun LandingPage(model: DataViewModel, navController: NavController) {
                             .height(20.dp)
                             .align(CenterHorizontally)
                             .clickable {
-                                tryConnect = true
+                                //tryConnect = true
                                 wifiName = it
                             })
                     }
@@ -133,7 +139,7 @@ fun LandingPage(model: DataViewModel, navController: NavController) {
             }
         }
 
-        if (tryConnect && wifiName != null) {
+        if (wifiName != null) {
             connectDevice(ssid = wifiName!!, context = context, navController = navController)
         }
 
@@ -150,8 +156,15 @@ fun LandingPage(model: DataViewModel, navController: NavController) {
                     .width(cardSize.dp)
                     .height(60.dp),
                 onClick = {
-                    displayNetwork = true
-                    scanWifi(model, context)
+                    //model.wifiNetworks.postValue(null)
+                    navController.navigate("main")
+
+                    //cai nay dung
+//                    scanWifi(model, context)
+//                    Thread.sleep(100)
+                    //den day
+
+                    //displayNetwork = true
 //                    wifiNetworks?.let { disconnectWifi(context, it) }
 //                    navController.navigate("main")
                 }
@@ -191,7 +204,7 @@ fun LandingPage(model: DataViewModel, navController: NavController) {
 }
 
 fun disconnectWifi(context: Context, wifiNetwork: String) {
-    WifiUtils.withContext(context)
+/*    WifiUtils.withContext(context)
         .disconnect(object : DisconnectionSuccessListener {
             override fun success() {
                 Log.d("airquality", "disconnect success: ")
@@ -201,27 +214,55 @@ fun disconnectWifi(context: Context, wifiNetwork: String) {
                 Log.d("airquality", "disconnect fail: ")
 
             }
-        })
+        })*/
+    WifiUtils.withContext(context).remove(wifiNetwork, object : RemoveSuccessListener {
+        override fun success() {
+            Log.d("airquality", "disconnect success: ")
+        }
+
+        override fun failed(errorCode: RemoveErrorCode) {
+            Log.d("airquality", "disconnect fail: ")
+        }
+    })
 
 }
 
 fun scanWifi(model: DataViewModel, context: Context) {
+/*    WifiUtils.withContext(context).disableWifi()
+    Thread.sleep(100)
+
+    WifiUtils.withContext(context).enableWifi()
+    Thread.sleep(100)*/
+
     Log.d("airquality", "getScanResults: start")
+    Log.d("airquality", "scanWifi: wifiNetworks ${model.wifiNetworks}")
     WifiUtils.withContext(context).scanWifi { scanResults ->
-        model.wifiNetworks.postValue(scanResults.map { item ->
+        if (scanResults.isEmpty()) Log.d("airquality", "getScanResults: scan result null")
+        val listWifi = scanResults.map { item ->
             item.toString().split(",")[0].split(":")[1].trim()
         }
-            .filter { item -> item.startsWith("ISD") }
-    )
-    }.start()
+            //.filter { item -> item.startsWith("ISD") || item.startsWith("\"ISD") }
+            .map { item ->
+                if (item.startsWith("\"ISD")) item.split("\"")[1] else item
+            }
+        if (!listWifi.isNullOrEmpty()) {
+            model.wifiNetworks.postValue(listWifi)
+            scanResults.map {
+                Log.d("airquality", "getScanResults: $it")
 
+            }
+        }
+    }.start()
 }
 
 @Composable
 fun connectDevice(ssid: String, context: Context, navController: NavController) {
     val tag = "airquality"
+/*    disconnectWifi(context, ssid)
+    Thread.sleep(100)*/
+//    WifiUtils.withContext(context).disableWifi()
+    //  Thread.sleep(100)
 
-    WifiUtils.withContext(context).enableWifi()
     WifiUtils.withContext(context).connectWith(ssid, "sensor22").setTimeout(40000)
         .onConnectionResult(object : ConnectionSuccessListener {
             override fun success() {
@@ -239,34 +280,28 @@ fun connectDevice(ssid: String, context: Context, navController: NavController) 
 fun GetWeather(model: DataViewModel) {
     val lat: Double? by model.lat.observeAsState(null)
     val lon: Double? by model.lon.observeAsState(null)
+    val weather: WeatherResponse? by model.weather.observeAsState(null)
 
-    ApiWeather.apiInstance().getWeather(location = lat.toString() + "," + lon).enqueue(object : Callback<WeatherResponse> {
-        override fun onResponse(call: Call<WeatherResponse>, response: Response<WeatherResponse>) {
-            if (response.isSuccessful) {
-                Log.d("airquality", "onResponse: name " + (response.body()?.location?.name))
-                model.weather.postValue(response.body())
+    ApiWeather.apiInstance().getWeather(location = lat.toString() + "," + lon)
+        .enqueue(object : Callback<WeatherResponse> {
+            override fun onResponse(
+                call: Call<WeatherResponse>,
+                response: Response<WeatherResponse>
+            ) {
+                if (response.isSuccessful) {
+                    Log.d("airquality", "onResponse: name " + (response.body()?.current?.condition?.icon))
+                    model.weather.postValue(response.body())
+                }
             }
-        }
 
-        override fun onFailure(call: Call<WeatherResponse>, t: Throwable) {
-            Log.d("airquality", "onFailure: " + t.message)
-        }
-    })
-}
-
-private suspend fun getImg(context: Context, url: URL): Bitmap? = withContext(Dispatchers.IO) {
-//    if (isNetworkAvailable(context = context)) {
-    try {
-        val connection = url.openConnection() as HttpURLConnection
-        connection.doInput = true
-        connection.connect()
-        val input: InputStream = connection.inputStream
-        return@withContext BitmapFactory.decodeStream(input)
-    } catch (e: Exception) {
-        e.printStackTrace()
+            override fun onFailure(call: Call<WeatherResponse>, t: Throwable) {
+                Log.d("airquality", "onFailure: " + t.message)
+            }
+        })
+    if (weather != null) {
+        model.image.postValue(rememberImagePainter(data = "https:" + weather!!.current.condition.icon))
     }
-//    } else Log.d(TAG, "Network is not available")
-    return@withContext null
+    Log.d("airquality", "GetWeather: Long: $lon lat: $lat")
 }
 
 

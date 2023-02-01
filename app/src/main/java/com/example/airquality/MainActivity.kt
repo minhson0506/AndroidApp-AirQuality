@@ -31,10 +31,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.airquality.components.ChartPage
-import com.example.airquality.components.Dashboard
-import com.example.airquality.components.LandingPage
-import com.example.airquality.components.Settings
+import com.example.airquality.components.*
 import com.example.airquality.services.DataViewModel
 import com.example.airquality.services.GetLocation
 import com.example.airquality.ui.theme.AirQualityTheme
@@ -63,6 +60,8 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val navController = rememberNavController()
+
+
             AirQualityTheme {
                 // start get phone location
                 GetLocation(this, this, model)
@@ -81,6 +80,21 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onPause() {
+        Log.d(tag, "onDestroy pause")
+        super.onPause()
+    }
+
+    override fun onDestroy() {
+        Log.d(tag, "onDestroy")
+        super.onDestroy()
+    }
+}
+
+@Composable
+fun test(model: DataViewModel) {
+
 }
 
 sealed class BottomNavItem(var title: String, var icon: Int, var screen_route: String) {

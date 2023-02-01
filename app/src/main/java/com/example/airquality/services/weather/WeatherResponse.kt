@@ -32,6 +32,6 @@ data class Current(
 
 data class ConditionWeather(
     val text: String,
-    val url: String,
+    val icon: String,
     val code: Int
 )

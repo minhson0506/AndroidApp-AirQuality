@@ -43,7 +43,7 @@ import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun Dashboard(model: DataViewModel) {
     val TAG = "airquality"
@@ -115,9 +115,8 @@ fun Dashboard(model: DataViewModel) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column() {
-                Headline(text = "ISD420")
-                Text("KMC 752", fontFamily = medium, fontSize = 18.sp, color = DarkGray)
-                Text("Time get data: ${sensorData?.time}")
+                Text("ISD420 KMC 752", fontFamily = medium, fontSize = 18.sp, color = DarkGray)
+                //Text("Time get data: ${sensorData?.time}")
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -132,16 +131,17 @@ fun Dashboard(model: DataViewModel) {
                     weather?.location?.let { Text(text = it.name, fontFamily = bold, fontSize = 18.sp, color = Black) }
 
                 }
-                Text(weather?.current?.temp.toString() + "oC", fontFamily = medium, fontSize = 18.sp, color = DarkGray)
-            }
-            Column() {
-                if (image != null) {
-                    Log.d(TAG, "Dashboard: in image" + image)
-                    Image(painter = image!!,
-                        contentDescription = weather?.current?.condition?.text, modifier = Modifier.size(100.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Log.d(TAG, "Dashboard: in image 1" + image)
+                    if (image != null) {
+                        Log.d(TAG, "Dashboard: in image 2" + image)
+                        Image(painter = image!!,
+                            contentDescription = weather?.current?.condition?.text, modifier = Modifier.size(50.dp).padding(end = 5.dp))
+                    }
+                    Text(weather?.current?.temp.toString() + "°C", fontFamily = medium, fontSize = 18.sp, color = DarkGray)
                 }
-            }
 
+            }
         }
 
         LazyVerticalGrid(
