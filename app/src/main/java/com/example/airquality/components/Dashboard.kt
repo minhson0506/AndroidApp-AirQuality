@@ -14,29 +14,27 @@ import androidx.compose.material.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
+import coil.compose.ImagePainter
+import coil.compose.rememberImagePainter
 import com.example.airquality.R
 import com.example.airquality.libraryComponent.Headline
 import com.example.airquality.libraryComponent.NumberText
 import com.example.airquality.libraryComponent.UnitText
 import com.example.airquality.services.DataViewModel
-import com.example.airquality.services.sensors.Api
+import com.example.airquality.services.sensors.ApiDevice
 import com.example.airquality.services.sensors.SensorResponse
+import com.example.airquality.services.weather.WeatherResponse
 import com.example.airquality.ui.theme.*
-import com.google.gson.annotations.SerializedName
-import org.json.JSONArray
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -51,6 +49,8 @@ fun Dashboard(model: DataViewModel) {
     val TAG = "airquality"
 
     val sensorData: SensorResponse? by model.sensorData.observeAsState(null)
+    val weather: WeatherResponse? by model.weather.observeAsState(null)
+    val image: ImagePainter? by model.image.observeAsState(null)
 //    val index: Int by model.index.observeAsState(0)
 
     val array = listOf(
@@ -129,10 +129,17 @@ fun Dashboard(model: DataViewModel) {
                             .size(15.dp),
                         colorFilter = ColorFilter.tint(color = Red)
                     )
-                    Text(text = "Location", fontFamily = bold, fontSize = 18.sp, color = Black)
+                    weather?.location?.let { Text(text = it.name, fontFamily = bold, fontSize = 18.sp, color = Black) }
 
                 }
-                Text("Weather", fontFamily = medium, fontSize = 18.sp, color = DarkGray)
+                Text(weather?.current?.temp.toString() + "oC", fontFamily = medium, fontSize = 18.sp, color = DarkGray)
+            }
+            Column() {
+                if (image != null) {
+                    Log.d(TAG, "Dashboard: in image" + image)
+                    Image(painter = image!!,
+                        contentDescription = weather?.current?.condition?.text, modifier = Modifier.size(100.dp))
+                }
             }
 
         }
@@ -239,7 +246,7 @@ fun UpdateData(scheduledExecutorService: ScheduledExecutorService, model: DataVi
 //    val index: Int by model.index.observeAsState(0)
     scheduledExecutorService.scheduleAtFixedRate({
         // repeat task: update new data
-        Api.apiInstance().getLatest().enqueue(object : Callback<SensorResponse> {
+        ApiDevice.apiInstance().getLatest().enqueue(object : Callback<SensorResponse> {
             override fun onResponse(
                 call: Call<SensorResponse>,
                 response: Response<SensorResponse>,
