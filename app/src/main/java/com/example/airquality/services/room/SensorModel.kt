@@ -28,16 +28,17 @@ data class SensorModel(
         return when (indicator) {
             "alt" -> alt
             "co2" -> co2
-            "hum" -> hum
-            "lux" -> lux
+            "humidity" -> hum
+            "light" -> lux
             "noise" -> noise
             "pm1" -> pm1
             "pm10" -> pm10
-            "pm2" -> pm2
+            "pm2.5" -> pm2
             "pm4" -> pm4
-            "pres" -> pres
-            "temp" -> temp
+            "pressure" -> pres
+            "temperature" -> temp
             else -> 0.0
         }
     }
 }
+

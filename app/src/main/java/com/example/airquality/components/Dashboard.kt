@@ -1,7 +1,7 @@
 package com.example.airquality.components
 
+import android.graphics.BitmapFactory
 import android.util.Log
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -9,26 +9,25 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
+import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import coil.compose.ImagePainter
-import coil.compose.rememberImagePainter
 import com.example.airquality.MainActivity
 import com.example.airquality.R
-import com.example.airquality.libraryComponent.Headline
 import com.example.airquality.libraryComponent.NumberText
 import com.example.airquality.libraryComponent.UnitText
 import com.example.airquality.services.DataViewModel
@@ -40,6 +39,7 @@ import com.example.airquality.ui.theme.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.io.File
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
@@ -50,7 +50,7 @@ import java.util.concurrent.TimeUnit
 fun Dashboard(model: DataViewModel) {
     val sensorData: SensorModel? by model.getLatest().observeAsState(null)
     val weather: WeatherResponse? by model.weather.observeAsState(null)
-    val image: ImagePainter? by model.image.observeAsState(null)
+    val image: String? by model.image.observeAsState(null)
 
     val array = listOf(
         null, null,
@@ -69,6 +69,20 @@ fun Dashboard(model: DataViewModel) {
                 "µg/m3",
                 "Particle density of particulate Matter(PM) in size range 0.3µm to 2.5µm in µg/m3"
             )
+        ),
+        Triple(
+            Pair(
+                "Pm1", R.drawable.wind
+            ),
+            sensorData?.pm1,
+            Pair("µg/m3", "Particle density of particulate Matter(PM) in size range 0.3µm to 1.0µm in µg/m3")
+        ),
+        Triple(
+            Pair(
+                "Pm4", R.drawable.wind
+            ),
+            sensorData?.pm4,
+            Pair("µg/m3", "Particle density of particulate Matter(PM) in size range 0.3µm to 4.0µm in µg/m3")
         ),
         Triple(
             Pair(
@@ -94,23 +108,10 @@ fun Dashboard(model: DataViewModel) {
             sensorData?.temp,
             Pair("°C", "Temperature in °C")
         ),
-        Triple(
-            Pair(
-                "Pm1", R.drawable.wind
-            ),
-            sensorData?.pm1,
-            Pair("µg/m3", "Particle density of particulate Matter(PM) in size range 0.3µm to 2.5µm in µg/m3")
-        ),
-        Triple(
-            Pair(
-                "Pm4", R.drawable.wind
-            ),
-            sensorData?.pm4,
-            Pair("µg/m3", "Particle density of particulate Matter(PM) in size range 0.3µm to 2.5µm in µg/m3")
-        ),
+
     )
 
-    var scheduledExecutorService: ScheduledExecutorService =
+    val scheduledExecutorService: ScheduledExecutorService =
         Executors.newSingleThreadScheduledExecutor()
 
     UpdateData(scheduledExecutorService = scheduledExecutorService, model = model)
@@ -125,16 +126,15 @@ fun Dashboard(model: DataViewModel) {
                 .fillMaxWidth()
                 .padding(top = 15.dp, start = 20.dp, end = 20.dp, bottom = 10.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Top
         ) {
-            Column() {
-                Text("ISD420 KMC 752", fontFamily = medium, fontSize = 18.sp, color = DarkGray)
-                Text("Time get data:")
+            Column(modifier = Modifier.padding(top = 10.dp)) {
+                Text("ISD420 KMC 752", fontFamily = bold, fontSize = 18.sp, color = Black)
                 val time = sensorData?.time?.split(",")
-                Text(text = "Date: ${time?.get(0)}")
-                Text(text = "Time: ${time?.get(1)?.trim()}")
+                Text(text = "Date: ${time?.get(0)}", fontFamily = medium, fontSize = 16.sp, color = DarkGray)
+                Text(text = "Time: ${time?.get(1)?.trim()}", fontFamily = medium, fontSize = 16.sp, color = DarkGray)
             }
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(top = 10.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Image(
                         painterResource(id = R.drawable.location),
@@ -148,15 +148,14 @@ fun Dashboard(model: DataViewModel) {
 
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Log.d(MainActivity.tag, "Dashboard: in image 1" + image)
                     if (image != null) {
-                        Log.d(MainActivity.tag, "Dashboard: in image 2" + image)
-                        Image(painter = image!!,
+                        val myBitmap = BitmapFactory.decodeFile(image)
+                        Image(bitmap = myBitmap.asImageBitmap(),
                             contentDescription = weather?.current?.condition?.text, modifier = Modifier
                                 .size(50.dp)
-                                .padding(end = 5.dp).background(Color.Red))
+                                .padding(end = 5.dp))
                     }
-                    Text(weather?.current?.temp.toString() + "°C", fontFamily = medium, fontSize = 18.sp, color = DarkGray)
+                    Text(weather?.current?.temp?.toInt().toString() + "°C", fontFamily = medium, fontSize = 16.sp, color = DarkGray)
                 }
 
             }

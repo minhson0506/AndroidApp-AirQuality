@@ -85,7 +85,7 @@ fun connectDevice(
             override fun success() {
                 Log.d(MainActivity.tag, "success connect wifi: ")
                 model.isOnline.postValue(false)
-                // get Data for Room
+                // get data from device and insert to Room
                 ApiDevice.apiInstance().getAll().enqueue(object : Callback<List<SensorResponse>> {
                     override fun onResponse(
                         call: Call<List<SensorResponse>>,

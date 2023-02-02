@@ -17,6 +17,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.capitalize
+import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.airquality.MainActivity
@@ -43,34 +45,47 @@ fun ChartPage(model: DataViewModel) {
     val today = SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().time)
 
     Log.d(MainActivity.tag, "ChartPage: today $today")
-    var date : String by remember { mutableStateOf<String>(today) }
+    var date: String by remember { mutableStateOf<String>(today) }
 
     val indicator: String by model.indicator.observeAsState("pm10")
 
 
 
-   Column(
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(LightBlue)
     ) {
         ExpandableCalendar(theme = calendarDefaultTheme.copy(
-            dayShape = CircleShape, dayBackgroundColor = Color.Blue, selectedDayBackgroundColor = Color.Green
+            dayShape = CircleShape,
+            dayBackgroundColor = Color.White,
+            selectedDayBackgroundColor = Blue,
+            weekDaysTextColor = DarkGray,
+            dayValueTextColor = Black,
+            selectedDayValueTextColor = White,
+            backgroundColor = LightBlue
         ), onDayClick = {
             Log.d(MainActivity.tag, "ChartPage: ${it.toString()}")
             date = it.toString()
         })
 
-        Column(modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 30.dp), horizontalAlignment = CenterHorizontally) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 30.dp), horizontalAlignment = CenterHorizontally
+        ) {
             DropDownComp(model = model)
-            Card(modifier = Modifier
-                .width(cardSize.dp)
-                .padding(top = 20.dp)
-                .align(CenterHorizontally)) {
+            Card(
+                modifier = Modifier
+                    .width(cardSize.dp)
+                    .padding(top = 20.dp)
+                    .align(CenterHorizontally)
+            ) {
                 Column() {
-                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 20.dp, start = 10.dp, top = 10.dp)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(bottom = 20.dp, start = 10.dp, top = 10.dp)
+                    ) {
                         Image(
                             painterResource(id = R.drawable.wind),
                             contentDescription = "",
@@ -81,7 +96,7 @@ fun ChartPage(model: DataViewModel) {
                             colorFilter = ColorFilter.tint(color = White)
                         )
                         Text(
-                            text = "PM2.5",
+                            text = indicator.capitalize(Locale.ROOT),
                             color = Black,
                             fontSize = 20.sp,
                             fontFamily = bold,

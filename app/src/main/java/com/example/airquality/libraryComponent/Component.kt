@@ -123,10 +123,10 @@ fun NumberText(
 @Composable
 fun DropDownComp(model: DataViewModel) {
 
-    val listItems = arrayOf("PM10", "Pm2.5", "CO2", "Humidity", "Light", "Noise", "Pressure", "Temperature", "Pm1", "Pm4")
+    val listItems = arrayOf("PM10", "Pm2.5", "Pm1", "Pm4", "CO2", "Humidity", "Light", "Noise", "Pressure", "Temperature")
 
     var selectedItem by remember {
-        mutableStateOf(listItems[0])
+        mutableStateOf(listItems[4])
     }
 
     var expanded by remember {

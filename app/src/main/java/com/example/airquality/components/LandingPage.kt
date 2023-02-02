@@ -1,8 +1,10 @@
 package com.example.airquality.components
 
 import android.content.res.Resources
+import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
@@ -18,15 +20,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import androidx.navigation.NavController
+import com.example.airquality.MainActivity
 import com.example.airquality.R
 import com.example.airquality.services.DataViewModel
 import com.example.airquality.services.GetWeather
 import com.example.airquality.services.connectDevice
 import com.example.airquality.services.scanWifi
-import com.example.airquality.ui.theme.Black
-import com.example.airquality.ui.theme.LightBlue
-import com.example.airquality.ui.theme.bold
+import com.example.airquality.ui.theme.*
 
 
 @Composable
@@ -71,30 +74,68 @@ fun LandingPage(model: DataViewModel, navController: NavController) {
             )
         }
 
-        if (!wifiNetworks.isNullOrEmpty()) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(CenterHorizontally)
-            ) {
-                Text(text = "Wifi Networks", modifier = Modifier.align(CenterHorizontally))
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height((dpValue * 0.35).dp)
-                        .verticalScroll(rememberScrollState())
+        var popupControl by remember { mutableStateOf(false) }
+
+        if (!wifiNetworks.isNullOrEmpty() && popupControl) {
+            Popup(
+                alignment = Alignment.Center,
+                properties = PopupProperties(dismissOnClickOutside = true),
+                onDismissRequest = { popupControl = false }) {
+                Box(
+                    Modifier
+                        .size(300.dp, 200.dp)
+                        .background(LightBlue, RoundedCornerShape(10.dp))
+                        .border(1.dp, color = Color.Black, RoundedCornerShape(10.dp))
                 ) {
-                    wifiNetworks?.forEach {
-                        Text(text = it, modifier = Modifier
-                            .height(30.dp)
-                            .align(CenterHorizontally)
-                            .clickable {
-                                wifiName = it
-                            })
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        horizontalAlignment = CenterHorizontally,
+                    ) {
+                        Text(text = "Devices to connect:", modifier = Modifier
+                            .padding(15.dp)
+                            .align(CenterHorizontally), fontFamily = medium, fontSize = 18.sp, color = Black)
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .verticalScroll(rememberScrollState())
+                        ) {
+                            wifiNetworks?.forEach {
+                                Button(onClick = { wifiName = it}, modifier = Modifier.width(200.dp).padding(bottom = 10.dp).align(CenterHorizontally), colors = ButtonDefaults.buttonColors(backgroundColor = White),) {
+                                    Text(text = it, fontFamily = bold, fontSize = 20.sp, color = Black, textAlign = TextAlign.Center)
+                                }
+
+                            }
+                        }
                     }
                 }
             }
         }
+
+//        if (!wifiNetworks.isNullOrEmpty()) {
+//            Column(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .align(CenterHorizontally)
+//            ) {
+//                Text(text = "Wifi Networks", modifier = Modifier.align(CenterHorizontally))
+//                Column(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .height((dpValue * 0.35).dp)
+//                        .verticalScroll(rememberScrollState())
+//                ) {
+//                    wifiNetworks?.forEach {
+//                        Text(text = it, modifier = Modifier
+//                            .height(30.dp)
+//                            .align(CenterHorizontally)
+//                            .clickable {
+//                                wifiName = it
+//                            })
+//                    }
+//                }
+//            }
+//        }
 
         if (wifiName != null) {
             connectDevice(ssid = wifiName!!,
@@ -117,6 +158,7 @@ fun LandingPage(model: DataViewModel, navController: NavController) {
                     .height(60.dp),
                 onClick = {
                     scanWifi(model, context)
+                    popupControl = !popupControl
                 }
 
             ) {

@@ -12,6 +12,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import java.io.File
 
 class DataViewModel(application: Application): AndroidViewModel(application) {
     // store list of Wifi networks
@@ -19,14 +20,14 @@ class DataViewModel(application: Application): AndroidViewModel(application) {
 
     // store data of weather in outside
     val weather = MutableLiveData<WeatherResponse?>(null)
-    val image = MutableLiveData<ImagePainter?>(null)
+    val image = MutableLiveData<String?>(null)
 
     // check connection
     val isOnline = MutableLiveData<Boolean>(true)
     // store data of sensor in inside
 //    val sensorData = MutableLiveData<SensorResponse>(null)
 
-    val indicator = MutableLiveData<String>("pm10")
+    val indicator = MutableLiveData<String>("co2")
     // data from Room
     private val roomDB = RoomDB.getInstance(application)
     private val viewModelJob = Job()

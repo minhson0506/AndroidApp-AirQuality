@@ -34,10 +34,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.airquality.components.*
 import com.example.airquality.services.DataViewModel
 import com.example.airquality.services.GetLocation
-import com.example.airquality.ui.theme.AirQualityTheme
-import com.example.airquality.ui.theme.Blue
-import com.example.airquality.ui.theme.White
-import com.example.airquality.ui.theme.regular
+import com.example.airquality.ui.theme.*
 
 
 class MainActivity : ComponentActivity() {
@@ -139,7 +136,7 @@ fun BottomNavigationBar(navController: NavController) {
                         painterResource(id = item.icon),
                         contentDescription = item.title,
                         modifier = Modifier.size(25.dp),
-                        colorFilter = if(selected) ColorFilter.tint(color = Blue) else ColorFilter.tint(color = Color.Black)
+                        colorFilter = if(selected) ColorFilter.tint(color = Blue) else ColorFilter.tint(color = DarkGray)
                     )
                 },
                 label = {
