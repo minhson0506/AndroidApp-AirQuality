@@ -136,7 +136,7 @@ fun Dashboard(model: DataViewModel) {
     } else if(sensorData?.deviceName != null) {
         title = sensorData!!.deviceName + "-" + deviceName
     } else {
-        title = "ISD-$deviceName"
+        title = "ISD"
     }
 
     val scheduledExecutorService: ScheduledExecutorService =
@@ -167,13 +167,13 @@ fun Dashboard(model: DataViewModel) {
 
                 val time = sensorData?.time?.split(",")
                 Text(
-                    text = "Date: ${time?.get(0)}",
+                    text = if(time?.get(0) != null) "Date: ${time[0]}" else "",
                     fontFamily = medium,
                     fontSize = 16.sp,
                     color = DarkGray
                 )
                 Text(
-                    text = "Time: ${time?.get(1)?.trim()}",
+                    text = if(time?.get(1) != null) "Time: ${time[1].trim()}" else "",
                     fontFamily = medium,
                     fontSize = 16.sp,
                     color = DarkGray
@@ -192,14 +192,14 @@ fun Dashboard(model: DataViewModel) {
                             .size(15.dp),
                         colorFilter = ColorFilter.tint(color = Red)
                     )
-                    weather?.location?.let {
+
                         Text(
-                            text = it.name,
+                            text = if(weather?.location?.name != null) weather!!.location.name else "No location",
                             fontFamily = bold,
                             fontSize = 18.sp,
                             color = Black
                         )
-                    }
+
 
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -213,8 +213,8 @@ fun Dashboard(model: DataViewModel) {
                                 .padding(end = 5.dp)
                         )
                     }
-                    Text(
-                        weather?.current?.temp?.toInt().toString() + "°C",
+                    Text(if(weather?.current?.temp != null)
+                        weather?.current?.temp?.toInt().toString() + "°C" else "",
                         fontFamily = medium,
                         fontSize = 16.sp,
                         color = DarkGray
@@ -315,7 +315,7 @@ fun Dashboard(model: DataViewModel) {
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                NumberText(text = it.data.toString())
+                                NumberText(text = if(it.data != null) it.data.toString() else "")
                                 UnitText(text = it.unit)
                             }
                         }
