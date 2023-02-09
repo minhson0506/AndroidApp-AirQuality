@@ -1,6 +1,8 @@
 package com.example.airquality.components
 
+import android.app.Notification
 import android.content.res.Resources
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -9,6 +11,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,6 +23,8 @@ import androidx.compose.ui.unit.dp
 import com.example.airquality.R
 import com.example.airquality.libraryComponent.SampleSlider
 import com.example.airquality.libraryComponent.TextTitle
+import com.example.airquality.services.DataViewModel
+import com.example.airquality.services.room.SensorModel
 import com.example.airquality.ui.theme.AirQualityTheme
 import com.example.airquality.ui.theme.LightBlue
 import com.example.airquality.ui.theme.LightGray
@@ -27,9 +32,13 @@ import com.example.airquality.ui.theme.bold
 
 
 @Composable
-fun Settings() {
-    var text by remember { mutableStateOf(TextFieldValue("")) }
-    var checkedState by remember { mutableStateOf(true) }
+fun Settings(model: DataViewModel) {
+    val context = LocalContext.current
+
+    val deviceName by model.deviceName.observeAsState("")
+
+    var text by remember { mutableStateOf(deviceName) }
+    val checkedState by model.enableNoti.observeAsState(false)
 
     // get size of phone's screen
     val screenPixelDensity = LocalContext.current.resources.displayMetrics.density
@@ -37,16 +46,16 @@ fun Settings() {
     val cardSize = dpValue * 0.9
 
     val data = listOf(
-        Triple(Pair("Pm10", 0.01f), Pair(0.4f, 0.8f), Pair(0.2f, 1.0f)),
-        Triple(Pair("Pm2.5", 0.01f), Pair(0.5f, 1.8f), Pair(0.2f, 2.0f)),
-        Triple(Pair("Pm1", 0.01f), Pair(0.4f, 0.8f), Pair(0.2f, 1.0f)),
-        Triple(Pair("Pm4", 0.01f), Pair(0.4f, 0.8f), Pair(0.2f, 1.0f)),
-        Triple(Pair("CO2", 10f), Pair(200f, 650f), Pair(100f, 800f)),
-        Triple(Pair("Humidity", 1f), Pair(2f, 15f), Pair(1f, 30f)),
-        Triple(Pair("Light", 10f), Pair(20f, 40f), Pair(10f, 60f)),
-        Triple(Pair("Noise", 10f), Pair(30f, 120f), Pair(10f, 150f)),
-        Triple(Pair("Pressure", 10f), Pair(950f, 1050f), Pair(900f, 1100f)),
-        Triple(Pair("Temperature", 1f), Pair(18f, 30f), Pair(10f, 55f))
+        SliderData(0, "Pm10", 0.01f, 0.2f, 1.0f),
+        SliderData(1, "Pm2.5", 0.01f, 0.2f, 2.0f),
+        SliderData(2, "Pm1", 0.01f, 0.2f, 1.0f),
+        SliderData(3, "Pm4", 0.01f, 0.2f, 1.0f),
+        SliderData(4, "CO2", 10f, 100f, 800f),
+        SliderData(5, "Humidity", 1f, 1f, 30f),
+        SliderData(6, "Light", 10f, 10f, 60f),
+        SliderData(7, "Noise", 10f, 10f, 150f),
+        SliderData(8, "Pressure", 10f, 900f, 1100f),
+        SliderData(9, "Temperature", 1f, 10f, 55f)
     )
 
     Column(
@@ -77,7 +86,7 @@ fun Settings() {
                             .width((cardSize * 0.8).dp)
                     ) {
                         Text(
-                            text = "ISD420",
+                            text = "ISD",
                             fontFamily = bold,
                             modifier = Modifier.padding(start = 10.dp)
                         )
@@ -94,20 +103,21 @@ fun Settings() {
                             ),
                         )
                     }
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = {
+                        model.deviceName.postValue(text)
+                    }) {
                         Image(
                             painterResource(id = R.drawable.checkbox),
                             contentDescription = "Favorite",
                             modifier = Modifier.size(50.dp)
                         )
                     }
-
                 }
-
             }
         }
         Card(
-            modifier = Modifier.padding(bottom = 20.dp)
+            modifier = Modifier
+                .padding(bottom = 20.dp)
                 .width(cardSize.dp)
                 .padding(top = 20.dp)
         ) {
@@ -120,21 +130,29 @@ fun Settings() {
                     TextTitle(id = R.string.alert)
                     Switch(
                         checked = checkedState,
-                        onCheckedChange = { checkedState = it }
+                        onCheckedChange = {
+                            model.enableNoti.postValue(it)
+                            if (it) {
+                                Toast.makeText(context, "Notification is on!", Toast.LENGTH_SHORT)
+                                    .show()
+                            } else {
+                                Toast.makeText(context, "Notification is off!", Toast.LENGTH_SHORT)
+                                    .show()
+                            }
+                        }
                     )
                 }
-                if (checkedState) {
-                    Column( modifier = Modifier.verticalScroll(rememberScrollState())) {
-                        for (item in data) {
-                            SampleSlider(
-                                text = item.first.first,
-                                minValue = item.second.first,
-                                maxValue = item.second.second,
-                                min = item.third.first,
-                                max = item.third.second,
-                                step = item.first.second
-                            )
-                        }
+
+                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                    for (item in data) {
+                        SampleSlider(
+                            id = item.id,
+                            text = item.name,
+                            min = item.min,
+                            max = item.max,
+                            step = item.step,
+                            model = model
+                        )
                     }
                 }
 
@@ -144,10 +162,10 @@ fun Settings() {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun SettingPreview() {
-    AirQualityTheme {
-        Settings()
-    }
-}
+data class SliderData(
+    val id: Int,
+    val name: String,
+    val step: Float,
+    val min: Float,
+    val max: Float
+)

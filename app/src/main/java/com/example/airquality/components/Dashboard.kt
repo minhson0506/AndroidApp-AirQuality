@@ -20,17 +20,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
-import coil.compose.ImagePainter
 import com.example.airquality.MainActivity
 import com.example.airquality.R
 import com.example.airquality.libraryComponent.NumberText
 import com.example.airquality.libraryComponent.UnitText
 import com.example.airquality.services.DataViewModel
+import com.example.airquality.services.maxValueInit
+import com.example.airquality.services.minValueInit
+import com.example.airquality.services.notification.Notification
 import com.example.airquality.services.room.SensorModel
 import com.example.airquality.services.sensors.ApiDevice
 import com.example.airquality.services.sensors.SensorResponse
@@ -39,7 +42,6 @@ import com.example.airquality.ui.theme.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.io.File
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
@@ -48,68 +50,94 @@ import java.util.concurrent.TimeUnit
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun Dashboard(model: DataViewModel) {
+    val context = LocalContext.current
     val sensorData: SensorModel? by model.getLatest().observeAsState(null)
     val weather: WeatherResponse? by model.weather.observeAsState(null)
     val image: String? by model.image.observeAsState(null)
 
+    val deviceName by model.deviceName.observeAsState("")
+
+    val minValue by model.minArray.observeAsState(minValueInit)
+    val maxValue by model.maxArray.observeAsState(maxValueInit)
+
     val array = listOf(
         null, null,
-        Triple(
-            Pair("Pm10", R.drawable.wind),
-            sensorData?.pm10,
-            Pair(
-                "µg/m3",
-                "Particle density of particulate Matter(PM) in size range 0.3µm to 10.0µm in µg/m3"
-            )
+        Value(
+            0, "Pm10", R.drawable.wind, sensorData?.pm10, "µg/m3",
+            "Particle density of particulate Matter(PM) in size range 0.3µm to 10.0µm in µg/m3"
         ),
-        Triple(
-            Pair("Pm2.5", R.drawable.wind),
+        Value(
+            1, "Pm2.5", R.drawable.wind,
             sensorData?.pm2,
-            Pair(
-                "µg/m3",
-                "Particle density of particulate Matter(PM) in size range 0.3µm to 2.5µm in µg/m3"
-            )
+            "µg/m3",
+            "Particle density of particulate Matter(PM) in size range 0.3µm to 2.5µm in µg/m3"
         ),
-        Triple(
-            Pair(
-                "Pm1", R.drawable.wind
-            ),
+        Value(
+            2,
+            "Pm1",
+            R.drawable.wind,
             sensorData?.pm1,
-            Pair("µg/m3", "Particle density of particulate Matter(PM) in size range 0.3µm to 1.0µm in µg/m3")
+            "µg/m3",
+            "Particle density of particulate Matter(PM) in size range 0.3µm to 1.0µm in µg/m3"
         ),
-        Triple(
-            Pair(
-                "Pm4", R.drawable.wind
-            ),
+        Value(
+            3,
+            "Pm4",
+            R.drawable.wind,
             sensorData?.pm4,
-            Pair("µg/m3", "Particle density of particulate Matter(PM) in size range 0.3µm to 4.0µm in µg/m3")
+            "µg/m3",
+            "Particle density of particulate Matter(PM) in size range 0.3µm to 4.0µm in µg/m3"
         ),
-        Triple(
-            Pair(
-                "CO2", R.drawable.co2
-            ),
-            sensorData?.co2,
-            Pair("ppm", "Carbon dioxide in ppm")
+        Value(
+            4,
+            "CO2", R.drawable.co2,
+            sensorData?.co2, "ppm", "Carbon dioxide in ppm"
         ),
-        Triple(Pair("Humidity", R.drawable.humidity),
-            sensorData?.hum,
-            Pair("RH", "Humidity in %RH")),
-        Triple(Pair("Light", R.drawable.light), sensorData?.lux, Pair("lux", "Lighting in lux")),
-        Triple(
-            Pair("Noise", R.drawable.sound),
+        Value(5, "Humidity", R.drawable.humidity, sensorData?.hum, "RH", "Humidity in %RH"),
+        Value(6, "Light", R.drawable.light, sensorData?.lux, "lux", "Lighting in lux"),
+        Value(
+            7, "Noise", R.drawable.sound,
             sensorData?.noise,
-            Pair("dB", "Loudness in dB")
+            "dB", "Loudness in dB"
         ),
-        Triple(Pair("Pressure", R.drawable.pressure), sensorData?.pres, Pair("hPa", "Pressure in hPa")),
-        Triple(
-            Pair(
-                "Temp", R.drawable.temp
-            ),
+        Value(8, "Pressure", R.drawable.pressure, sensorData?.pres, "hPa", "Pressure in hPa"),
+        Value(
+            9,
+            "Temp", R.drawable.temp,
             sensorData?.temp,
-            Pair("°C", "Temperature in °C")
-        ),
-
+            "°C", "Temperature in °C",
+        )
     )
+
+    // init noti
+    val enableNoti by model.enableNoti.observeAsState(false)
+
+    if (enableNoti) {
+        array.forEach {
+            if (it?.data != null) {
+                val notification =
+                    Notification(context, "Warning: " + it.name + " is out of safe range", "")
+                if (it.data > maxValue[it.id] || it.data < minValue[it.id]) {
+                    Log.d(MainActivity.tag, "Dashboard: start noti")
+                    notification.notification(it.id)
+                } else {
+                    Log.d(MainActivity.tag, "Dashboard: stop noti")
+                    notification.cancel(it.id)
+                }
+            }
+        }
+    }
+
+    // set device + room name
+    var title by remember { mutableStateOf("") }
+
+    if(sensorData?.deviceName != null && deviceName == "") {
+        title = sensorData!!.deviceName.toString()
+    } else if(sensorData?.deviceName != null) {
+        title = sensorData!!.deviceName + "-" + deviceName
+    } else {
+        title = "ISD-$deviceName"
+    }
 
     val scheduledExecutorService: ScheduledExecutorService =
         Executors.newSingleThreadScheduledExecutor()
@@ -129,12 +157,32 @@ fun Dashboard(model: DataViewModel) {
             verticalAlignment = Alignment.Top
         ) {
             Column(modifier = Modifier.padding(top = 10.dp)) {
-                Text("ISD420 KMC 752", fontFamily = bold, fontSize = 18.sp, color = Black)
+
+                    Text(
+                        text = title,
+                        fontFamily = bold,
+                        fontSize = 18.sp,
+                        color = Black
+                    )
+
                 val time = sensorData?.time?.split(",")
-                Text(text = "Date: ${time?.get(0)}", fontFamily = medium, fontSize = 16.sp, color = DarkGray)
-                Text(text = "Time: ${time?.get(1)?.trim()}", fontFamily = medium, fontSize = 16.sp, color = DarkGray)
+                Text(
+                    text = "Date: ${time?.get(0)}",
+                    fontFamily = medium,
+                    fontSize = 16.sp,
+                    color = DarkGray
+                )
+                Text(
+                    text = "Time: ${time?.get(1)?.trim()}",
+                    fontFamily = medium,
+                    fontSize = 16.sp,
+                    color = DarkGray
+                )
             }
-            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(top = 10.dp)) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(top = 10.dp)
+            ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Image(
                         painterResource(id = R.drawable.location),
@@ -144,18 +192,33 @@ fun Dashboard(model: DataViewModel) {
                             .size(15.dp),
                         colorFilter = ColorFilter.tint(color = Red)
                     )
-                    weather?.location?.let { Text(text = it.name, fontFamily = bold, fontSize = 18.sp, color = Black) }
+                    weather?.location?.let {
+                        Text(
+                            text = it.name,
+                            fontFamily = bold,
+                            fontSize = 18.sp,
+                            color = Black
+                        )
+                    }
 
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     if (image != null) {
                         val myBitmap = BitmapFactory.decodeFile(image)
-                        Image(bitmap = myBitmap.asImageBitmap(),
-                            contentDescription = weather?.current?.condition?.text, modifier = Modifier
+                        Image(
+                            bitmap = myBitmap.asImageBitmap(),
+                            contentDescription = weather?.current?.condition?.text,
+                            modifier = Modifier
                                 .size(50.dp)
-                                .padding(end = 5.dp))
+                                .padding(end = 5.dp)
+                        )
                     }
-                    Text(weather?.current?.temp?.toInt().toString() + "°C", fontFamily = medium, fontSize = 16.sp, color = DarkGray)
+                    Text(
+                        weather?.current?.temp?.toInt().toString() + "°C",
+                        fontFamily = medium,
+                        fontSize = 16.sp,
+                        color = DarkGray
+                    )
                 }
 
             }
@@ -168,9 +231,9 @@ fun Dashboard(model: DataViewModel) {
 
                 var popupControl by remember { mutableStateOf(false) }
 
-                Log.d(MainActivity.tag, "Dashboard: ${it?.first} & popup $popupControl")
+                Log.d(MainActivity.tag, "Dashboard: ${it?.name} & popup $popupControl")
                 if (popupControl) {
-                    Log.d(MainActivity.tag, "Dashboard: in popup ${it?.first}")
+                    Log.d(MainActivity.tag, "Dashboard: in popup ${it?.name}")
                     Popup(
                         alignment = Alignment.BottomCenter,
                         properties = PopupProperties(dismissOnClickOutside = true),
@@ -189,7 +252,7 @@ fun Dashboard(model: DataViewModel) {
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.Center
                             ) {
-                                it?.third?.second?.let { it1 ->
+                                it?.desc?.let { it1 ->
                                     Text(
                                         text = it1,
                                         color = Color.Black,
@@ -202,10 +265,12 @@ fun Dashboard(model: DataViewModel) {
                     }
                 }
                 if (it == null) {
-                    Card(modifier = Modifier
-                        .padding(bottom = 10.dp)
-                        .height(1.dp),
-                        backgroundColor = LightBlue) {
+                    Card(
+                        modifier = Modifier
+                            .padding(bottom = 10.dp)
+                            .height(1.dp),
+                        backgroundColor = LightBlue
+                    ) {
                     }
                 } else {
                     Card(
@@ -215,7 +280,7 @@ fun Dashboard(model: DataViewModel) {
                         backgroundColor = White,
                         onClick = {
                             popupControl = !popupControl
-                            Log.d(MainActivity.tag, "Dashboard: ${it.first}")
+                            Log.d(MainActivity.tag, "Dashboard: ${it.name}")
                         }
                     ) {
                         Column(
@@ -225,16 +290,20 @@ fun Dashboard(model: DataViewModel) {
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Image(
-                                    painterResource(id = it.first.second),
+                                    painterResource(id = it.image),
                                     contentDescription = "",
                                     modifier = Modifier
                                         .size(30.dp)
-                                        .background(Green)
+                                        .background(
+                                            if (((it.data ?: 0.0) < minValue[it.id]) || ((it.data
+                                                    ?: 0.0) > maxValue[it.id])
+                                            ) Red else Green
+                                        )
                                         .padding(5.dp),
                                     colorFilter = ColorFilter.tint(color = White)
                                 )
                                 Text(
-                                    text = it.first.first,
+                                    text = it.name,
                                     color = Black,
                                     fontSize = 20.sp,
                                     fontFamily = bold,
@@ -246,8 +315,8 @@ fun Dashboard(model: DataViewModel) {
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                NumberText(text = it.second.toString())
-                                UnitText(text = it.third.first)
+                                NumberText(text = it.data.toString())
+                                UnitText(text = it.unit)
                             }
                         }
                     }
@@ -257,6 +326,14 @@ fun Dashboard(model: DataViewModel) {
     }
 }
 
+data class Value(
+    val id: Int,
+    val name: String,
+    val image: Int,
+    val data: Double?,
+    val unit: String,
+    val desc: String
+)
 
 @Composable
 fun UpdateData(scheduledExecutorService: ScheduledExecutorService, model: DataViewModel) {
@@ -272,55 +349,46 @@ fun UpdateData(scheduledExecutorService: ScheduledExecutorService, model: DataVi
                 Log.d(MainActivity.tag, "onResponse: " + response.body())
                 if (response.isSuccessful) {
                     if (sensorData == null) {
-                        model.insert(SensorModel(
-                            id = 0,
-                            alt = response.body()?.alt,
-                            co2 = response.body()?.co2,
-                            deviceId = response.body()?.deviceId,
-                            deviceName = response.body()?.deviceName,
-                            hum = response.body()?.hum,
-                            lux = response.body()?.lux,
-                            noise = response.body()?.noise,
-                            pm1 = response.body()?.pm1,
-                            pm10 = response.body()?.pm10,
-                            pm2 = response.body()?.pm2,
-                            pm4 = response.body()?.pm4,
-                            pres = response.body()?.pres,
-                            temp = response.body()?.temp,
-                            time = response.body()?.time,
-                        ))
-                    } else if (!sensorData?.map { item -> item.time }?.contains(response.body()?.time)!!) {
-                        model.insert(SensorModel(
-                            id = 0,
-                            alt = response.body()?.alt,
-                            co2 = response.body()?.co2,
-                            deviceId = response.body()?.deviceId,
-                            deviceName = response.body()?.deviceName,
-                            hum = response.body()?.hum,
-                            lux = response.body()?.lux,
-                            noise = response.body()?.noise,
-                            pm1 = response.body()?.pm1,
-                            pm10 = response.body()?.pm10,
-                            pm2 = response.body()?.pm2,
-                            pm4 = response.body()?.pm4,
-                            pres = response.body()?.pres,
-                            temp = response.body()?.temp,
-                            time = response.body()?.time,
-                        ))
-//                            model.sensorData.postValue(SensorResponse(response.body()?.alt,
-//                                response.body()?.co2,
-//                                response.body()?.deviceId,
-//                                response.body()?.deviceName,
-//                                response.body()?.hum,
-//                                response.body()?.lux,
-//                                response.body()?.noise,
-//                                response.body()?.pm1,
-//                                response.body()?.pm10,
-//                                response.body()?.pm2,
-//                                response.body()?.pm4,
-//                                response.body()?.pres,
-//                                response.body()?.temp,
-//                                response.body()?.time))
+                        model.insert(
+                            SensorModel(
+                                id = 0,
+                                alt = response.body()?.alt,
+                                co2 = response.body()?.co2,
+                                deviceId = response.body()?.deviceId,
+                                deviceName = response.body()?.deviceName,
+                                hum = response.body()?.hum,
+                                lux = response.body()?.lux,
+                                noise = response.body()?.noise,
+                                pm1 = response.body()?.pm1,
+                                pm10 = response.body()?.pm10,
+                                pm2 = response.body()?.pm2,
+                                pm4 = response.body()?.pm4,
+                                pres = response.body()?.pres,
+                                temp = response.body()?.temp,
+                                time = response.body()?.time,
+                            )
+                        )
+                    } else if (!sensorData?.map { item -> item.time }
+                            ?.contains(response.body()?.time)!!) {
+                        model.insert(
+                            SensorModel(
+                                id = 0,
+                                alt = response.body()?.alt,
+                                co2 = response.body()?.co2,
+                                deviceId = response.body()?.deviceId,
+                                deviceName = response.body()?.deviceName,
+                                hum = response.body()?.hum,
+                                lux = response.body()?.lux,
+                                noise = response.body()?.noise,
+                                pm1 = response.body()?.pm1,
+                                pm10 = response.body()?.pm10,
+                                pm2 = response.body()?.pm2,
+                                pm4 = response.body()?.pm4,
+                                pres = response.body()?.pres,
+                                temp = response.body()?.temp,
+                                time = response.body()?.time,
+                            )
+                        )
                     }
                 }
             }

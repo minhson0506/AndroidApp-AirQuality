@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
@@ -22,6 +23,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.airquality.MainActivity
 import com.example.airquality.services.DataViewModel
+import com.example.airquality.services.maxValueInit
+import com.example.airquality.services.minValueInit
 import com.example.airquality.ui.theme.*
 import com.madrapps.plot.line.DataPoint
 import com.madrapps.plot.line.LineGraph
@@ -126,7 +129,18 @@ fun NumberText(
 @Composable
 fun DropDownComp(model: DataViewModel) {
 
-    val listItems = arrayOf("PM10", "Pm2.5", "Pm1", "Pm4", "CO2", "Humidity", "Light", "Noise", "Pressure", "Temperature")
+    val listItems = arrayOf(
+        "PM10",
+        "Pm2.5",
+        "Pm1",
+        "Pm4",
+        "CO2",
+        "Humidity",
+        "Light",
+        "Noise",
+        "Pressure",
+        "Temperature"
+    )
 
     var selectedItem by remember {
         mutableStateOf(listItems[4])
@@ -207,20 +221,38 @@ fun SampleLineGraph(lines: List<List<DataPoint>>) {
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun SampleSlider(text: String, minValue: Float, maxValue: Float, min: Float, max: Float, step: Float) {
-    var range by remember { mutableStateOf(min..max) }
+fun SampleSlider(id: Int, text: String, min: Float, max: Float, step: Float, model: DataViewModel) {
+    val minValue by model.minArray.observeAsState(minValueInit)
+    val maxValue by model.maxArray.observeAsState(maxValueInit)
+
+    //var range by remember { mutableStateOf(min..max) }
+    var range = minValue[id]..maxValue[id]
     Log.d(MainActivity.tag, "SampleSlider: range ${range.start} + end: ${range.endInclusive}")
-    Log.d(MainActivity.tag, "SampleSlider: format ${(range.start * 10).roundToInt() / 10.0} + end: ${(range.endInclusive * 10).roundToInt() / 10.0}")
+    Log.d(
+        MainActivity.tag,
+        "SampleSlider: format ${(range.start * 10).roundToInt() / 10.0} + end: ${(range.endInclusive * 10).roundToInt() / 10.0}"
+    )
 
     val stepDisplay = if (step > 0.1) 10 else 100
+
 
     Column(modifier = Modifier.padding(10.dp)) {
         NormalText(text = text)
         Text(text = ("Min: " + (range.start * stepDisplay).roundToInt() / stepDisplay.toFloat()) + " - Max: " + ((range.endInclusive * stepDisplay).roundToInt() / stepDisplay.toFloat()).toString())
         RangeSlider(
             values = range,
-            onValueChange = { range = it },
-            valueRange = minValue..maxValue,
+            onValueChange = {
+                range = it
+                val listMin = mutableListOf<Float>()
+                minValue.forEach { item -> listMin.add(item) }
+                val listMax = mutableListOf<Float>()
+                maxValue.forEach { item -> listMax.add(item) }
+                listMin[id] = range.start
+                listMax[id] = range.endInclusive
+                model.minArray.postValue(listMin)
+                model.maxArray.postValue(listMax)
+            },
+            valueRange = min..max,
             colors = SliderDefaults.colors(
                 thumbColor = Blue,
                 activeTrackColor = Gray,

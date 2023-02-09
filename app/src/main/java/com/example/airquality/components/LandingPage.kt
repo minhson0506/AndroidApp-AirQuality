@@ -37,8 +37,9 @@ fun LandingPage(model: DataViewModel, navController: NavController) {
     // get size of phone's screen
     val context = LocalContext.current
     val screenPixelDensity = context.resources.displayMetrics.density
-    val dpValue = Resources.getSystem().displayMetrics.widthPixels / screenPixelDensity
-    val cardSize = dpValue * 0.8
+    val widthValue = Resources.getSystem().displayMetrics.widthPixels / screenPixelDensity
+    val heightValue = Resources.getSystem().displayMetrics.heightPixels / screenPixelDensity
+    val cardSize = widthValue * 0.8
 
     val wifiNetworks: List<String>? by model.wifiNetworks.observeAsState(null)
 
@@ -67,7 +68,7 @@ fun LandingPage(model: DataViewModel, navController: NavController) {
                 painterResource(id = R.drawable.landing),
                 "",
                 modifier = Modifier
-                    .width(dpValue.dp)
+                    .width(widthValue.dp)
                     .height(300.dp)
                     .padding(top = 10.dp),
                 alignment = Alignment.Center
@@ -83,7 +84,7 @@ fun LandingPage(model: DataViewModel, navController: NavController) {
                 onDismissRequest = { popupControl = false }) {
                 Box(
                     Modifier
-                        .size(300.dp, 200.dp)
+                        .size(cardSize.dp, (heightValue * 0.2).dp)
                         .background(LightBlue, RoundedCornerShape(10.dp))
                         .border(1.dp, color = Color.Black, RoundedCornerShape(10.dp))
                 ) {
@@ -101,8 +102,8 @@ fun LandingPage(model: DataViewModel, navController: NavController) {
                                 .verticalScroll(rememberScrollState())
                         ) {
                             wifiNetworks?.forEach {
-                                Button(onClick = { wifiName = it}, modifier = Modifier.width(200.dp).padding(bottom = 10.dp).align(CenterHorizontally), colors = ButtonDefaults.buttonColors(backgroundColor = White),) {
-                                    Text(text = it, fontFamily = bold, fontSize = 20.sp, color = Black, textAlign = TextAlign.Center)
+                                Button(onClick = { wifiName = it}, modifier = Modifier.width((cardSize * 0.8).dp).padding(bottom = 10.dp).align(CenterHorizontally), colors = ButtonDefaults.buttonColors(backgroundColor = White),) {
+                                    Text(text = it, fontFamily = bold, fontSize = 18.sp, color = Black, textAlign = TextAlign.Center)
                                 }
 
                             }

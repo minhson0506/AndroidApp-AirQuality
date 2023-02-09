@@ -13,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.io.File
+import kotlin.math.max
 
 class DataViewModel(application: Application): AndroidViewModel(application) {
     // store list of Wifi networks
@@ -61,5 +62,15 @@ class DataViewModel(application: Application): AndroidViewModel(application) {
     // store data of location
     val lat = MutableLiveData<Double?>(null)
     val lon = MutableLiveData<Double?>(null)
+
+    // data for slider
+    val minArray = MutableLiveData(minValueInit)
+    val maxArray = MutableLiveData(maxValueInit)
+
+    // notification
+    val enableNoti = MutableLiveData(false)
+
+    // device name
+    val deviceName = MutableLiveData("")
 
 }

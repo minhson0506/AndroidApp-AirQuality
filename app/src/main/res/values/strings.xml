@@ -3,5 +3,5 @@
     <string name="wifi">Choose device via Wifi</string>
     <string name="cloud">Choose device via Cloud</string>
     <string name="change">Change device name</string>
-    <string name="alert">Set alert</string>
+    <string name="alert">Set notification</string>
 </resources>
