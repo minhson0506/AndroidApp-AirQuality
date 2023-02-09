@@ -45,7 +45,7 @@ fun ChartPage(model: DataViewModel) {
     val today = SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().time)
 
     Log.d(MainActivity.tag, "ChartPage: today $today")
-    var date: String by remember { mutableStateOf<String>(today) }
+    var date: String by remember { mutableStateOf(today) }
 
     val indicator: String by model.indicator.observeAsState("pm10")
 
@@ -65,7 +65,7 @@ fun ChartPage(model: DataViewModel) {
             selectedDayValueTextColor = White,
             backgroundColor = LightBlue
         ), onDayClick = {
-            Log.d(MainActivity.tag, "ChartPage: ${it.toString()}")
+            Log.d(MainActivity.tag, "ChartPage: $it")
             date = it.toString()
         })
 

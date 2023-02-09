@@ -37,8 +37,10 @@ fun Settings() {
     val cardSize = dpValue * 0.9
 
     val data = listOf(
-        Triple(Pair("Pm10", 0.1f), Pair(0.4f, 0.8f), Pair(0.2f, 1.0f)),
-        Triple(Pair("Pm2.5", 0.1f), Pair(0.5f, 1.8f), Pair(0.2f, 2.0f)),
+        Triple(Pair("Pm10", 0.01f), Pair(0.4f, 0.8f), Pair(0.2f, 1.0f)),
+        Triple(Pair("Pm2.5", 0.01f), Pair(0.5f, 1.8f), Pair(0.2f, 2.0f)),
+        Triple(Pair("Pm1", 0.01f), Pair(0.4f, 0.8f), Pair(0.2f, 1.0f)),
+        Triple(Pair("Pm4", 0.01f), Pair(0.4f, 0.8f), Pair(0.2f, 1.0f)),
         Triple(Pair("CO2", 10f), Pair(200f, 650f), Pair(100f, 800f)),
         Triple(Pair("Humidity", 1f), Pair(2f, 15f), Pair(1f, 30f)),
         Triple(Pair("Light", 10f), Pair(20f, 40f), Pair(10f, 60f)),

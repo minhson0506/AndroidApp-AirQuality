@@ -1,6 +1,7 @@
 package com.example.airquality.libraryComponent
 
 import android.content.res.Resources
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -19,11 +20,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.airquality.MainActivity
 import com.example.airquality.services.DataViewModel
 import com.example.airquality.ui.theme.*
 import com.madrapps.plot.line.DataPoint
 import com.madrapps.plot.line.LineGraph
 import com.madrapps.plot.line.LinePlot
+import kotlin.math.roundToInt
 
 // TextView
 @Composable
@@ -206,10 +209,14 @@ fun SampleLineGraph(lines: List<List<DataPoint>>) {
 @Composable
 fun SampleSlider(text: String, minValue: Float, maxValue: Float, min: Float, max: Float, step: Float) {
     var range by remember { mutableStateOf(min..max) }
+    Log.d(MainActivity.tag, "SampleSlider: range ${range.start} + end: ${range.endInclusive}")
+    Log.d(MainActivity.tag, "SampleSlider: format ${(range.start * 10).roundToInt() / 10.0} + end: ${(range.endInclusive * 10).roundToInt() / 10.0}")
+
+    val stepDisplay = if (step > 0.1) 10 else 100
 
     Column(modifier = Modifier.padding(10.dp)) {
         NormalText(text = text)
-        Text(text = range.toString())
+        Text(text = ("Min: " + (range.start * stepDisplay).roundToInt() / stepDisplay.toFloat()) + " - Max: " + ((range.endInclusive * stepDisplay).roundToInt() / stepDisplay.toFloat()).toString())
         RangeSlider(
             values = range,
             onValueChange = { range = it },
@@ -219,7 +226,6 @@ fun SampleSlider(text: String, minValue: Float, maxValue: Float, min: Float, max
                 activeTrackColor = Gray,
                 inactiveTrackColor = LightGray,
             ),
-            steps = step.toInt()
         )
     }
 }

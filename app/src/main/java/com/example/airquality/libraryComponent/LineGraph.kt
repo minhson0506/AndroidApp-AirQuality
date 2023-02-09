@@ -37,22 +37,9 @@ import com.madrapps.plot.line.LinePlot
 fun LineGraph(model: DataViewModel, date: String, indicator: String) {
 
     val data: List<SensorModel>? by model.getDataInDate("$date%").observeAsState()
-    var dataDisplay by remember { mutableStateOf<List<Entry>>(listOf()) }
+    var dataDisplay by remember { mutableStateOf<List<DataPoint>?>(null) }
 
-
-/*    var dataDisplay = data?.map {
-        it.getValue(indicator = indicator.lowercase())?.let { it1 ->
-            DataPoint(
-                x = ((it.time?.split(",")?.get(1)?.trim()?.split(":")?.get(0)?.toFloat()
-                    ?: 0f) + ((it.time?.split(",")?.get(1)?.trim()?.split(":")?.get(1)
-                    ?.toDouble())?.div(60)!!) + ((it.time.split(",")[1].trim().split(":")[2]
-                    .toDouble()).div(60))).toFloat(),
-                y = it1.toFloat()
-            )
-        }
-    }?.sortedBy { it?.x }*/
-
-    // indicator
+    // map data according to indicator
     val indicatorArray = data?.map {
         it.getValue(indicator = indicator.lowercase())?.let { it1 ->
             it.time?.let { it2 ->
@@ -64,33 +51,14 @@ fun LineGraph(model: DataViewModel, date: String, indicator: String) {
         }
     }
 
-    /*val value = indicatorArray?.map {
-        it?.value?.toInt() ?: 0
-    }?.sortedDescending()
-    Log.d(MainActivity.tag, "LineGraph indicators: $indicatorArray")*/
-
-    // get time
+    // get all the time that have value
     val time =
         indicatorArray?.map { it?.time?.split(",")?.get(1)?.trim()?.split(":")?.get(0) }?.toSet()
     Log.d(MainActivity.tag, "LineGraph time set: $time")
 
-    // more than 8 hours a day
+    // more than 8 hours a day have data
     if ((time?.size ?: 0) >= 8) {
-        /*val listData = mutableListOf<DataPoint>()
-        time?.map {
-            indicatorArray.find { item ->
-                item?.time?.split(",")?.get(1)?.trim()?.split(":")?.get(0) == it
-            }
-        }?.forEach {
-            if (it != null) {
-                Log.d(MainActivity.tag, "LineGraph indicator by time: value ${it.value} time ${it.time}")
-            }
-            it?.value?.toFloat()
-                ?.let { it1 -> DataPoint(x = it.time.split(",")[1].trim().split(":")[0].toFloat(), y = it1) }
-                ?.let { it2 -> listData.add(it2) }
-        }
-        dataDisplay = listData*/
-        val listData = mutableListOf<Entry>()
+        val listData = mutableListOf<DataPoint>()
         time?.map {
             indicatorArray.find { item ->
                 item?.time?.split(",")?.get(1)?.trim()?.split(":")?.get(0) == it
@@ -103,7 +71,12 @@ fun LineGraph(model: DataViewModel, date: String, indicator: String) {
                 )
             }
             it?.value?.toFloat()
-                ?.let { it1 -> Entry(it.time.split(",")[1].trim().split(":")[0].toFloat(), it1) }
+                ?.let { it1 ->
+                    DataPoint(
+                        it.time.split(",")[1].trim().split(":")[0].toFloat(),
+                        it1
+                    )
+                }
                 ?.let { it2 -> listData.add(it2) }
         }
         if (dataDisplay != listData) {
@@ -111,8 +84,9 @@ fun LineGraph(model: DataViewModel, date: String, indicator: String) {
             dataDisplay = listData
         }
 
+        // less than 8 hours a day have data
     } else if ((time?.size ?: 0) >= 3) {
-        val listData = mutableListOf<Entry>()
+        val listData = mutableListOf<DataPoint>()
         time?.map {
             indicatorArray.filter { item ->
                 item?.time?.split(",")?.get(1)?.trim()?.split(":")?.get(0) == it
@@ -122,21 +96,21 @@ fun LineGraph(model: DataViewModel, date: String, indicator: String) {
             it[0]?.value?.toFloat()
                 ?.let { it1 ->
                     it[0]?.time?.split(",")?.get(1)?.trim()?.split(":")?.get(0)
-                        ?.let { it2 -> Entry(it2.toFloat(), it1) }
+                        ?.let { it2 -> DataPoint(it2.toFloat(), it1) }
                 }
                 ?.let { it2 -> listData.add(it2) }
             if (length > 1) if (length < 3) {
                 it[1]?.value?.toFloat()
                     ?.let { it1 ->
                         it[1]?.time?.split(",")?.get(1)?.trim()?.split(":")?.get(0)
-                            ?.let { it2 -> Entry(it2.toFloat(), it1) }
+                            ?.let { it2 -> DataPoint(it2.toFloat(), it1) }
                     }
                     ?.let { it2 -> listData.add(it2) }
             } else {
                 it[length / 2]?.value?.toFloat()
                     ?.let { it1 ->
                         it[length / 2]?.time?.split(",")?.get(1)?.trim()?.split(":")?.get(0)
-                            ?.let { it2 -> Entry(it2.toFloat(), it1) }
+                            ?.let { it2 -> DataPoint(it2.toFloat(), it1) }
                     }
                     ?.let { it2 -> listData.add(it2) }
             }
@@ -150,81 +124,43 @@ fun LineGraph(model: DataViewModel, date: String, indicator: String) {
     }
 
 
-    dataDisplay.forEach {
+    dataDisplay?.forEach {
         Log.d(
             MainActivity.tag,
-            "LineGraph: data for displaying x = ${it?.x} y = ${it?.y}"
+            "LineGraph: data for displaying x = ${it.x} y = ${it.y}"
         )
     }
-    //Log.d(MainActivity.tag, "LineGraph: $dataDisplay")
 
     // get size of phone's screen
-    /*val screenPixelDensity = LocalContext.current.resources.displayMetrics.density
+    val screenPixelDensity = LocalContext.current.resources.displayMetrics.density
     val dpValue = Resources.getSystem().displayMetrics.widthPixels / screenPixelDensity
-    val cardSize = dpValue * 0.8*/
+    val cardSize = dpValue * 0.8
 
+    // display chart
     if (dataDisplay != null && dataDisplay!!.isNotEmpty()) {
-        /*  LineGraph(
-              plot = LinePlot(
-                  listOf(
-                      LinePlot.Line(
-                          dataDisplay as List<DataPoint>,
-                          LinePlot.Connection(color = Red),
-                          LinePlot.Intersection(color = Red),
-                          LinePlot.Highlight(color = Yellow),
-                      )
-                  ),
-                  grid = LinePlot.Grid(Red, steps = 1),
-              ),
-              modifier = Modifier
-                  .width(cardSize.dp)
-                  .height(300.dp).onSizeChanged {  },
-              onSelection = { xLine, points ->
-                  // Do whatever you want here
+        LineGraph(
+            plot = LinePlot(
+                listOf(
+                    LinePlot.Line(
+                        dataDisplay as List<DataPoint>,
+                        LinePlot.Connection(color = Red),
+                        LinePlot.Intersection(color = Red),
+                        LinePlot.Highlight(color = Yellow),
+                    )
+                ),
+                grid = LinePlot.Grid(Red, steps = 1),
+            ),
+            modifier = Modifier
+                .width(cardSize.dp)
+                .height(300.dp)
+                .onSizeChanged { },
+            onSelection = { xLine, points ->
+                // Do whatever you want here
 
-              }
+            }
 
-          )*/
-        Graph(points = dataDisplay)
+        )
     }
 }
 
 internal class DataIndicator(val value: Double, val time: String)
-
-// Graph to display Heart rate
-@Composable
-fun Graph(points: List<Entry>) {
-    // get size of phone's screen
-    val screenPixelDensity = LocalContext.current.resources.displayMetrics.density
-    val dpValue = Resources.getSystem().displayMetrics.heightPixels / screenPixelDensity
-
-    // draw the graph with data
-    AndroidView(
-        modifier = Modifier
-            .padding(start = 30.dp, end = 30.dp)
-            .fillMaxSize()
-            .height(dpValue.dp),
-        factory = { context: Context ->
-            // init map with line chart
-            val view = LineChart(context)
-            view.legend.isEnabled = false
-            val data = LineData(LineDataSet(points, "BPM"))
-            val desc = Description()
-            desc.text = ""
-            // set color of data in graph
-            data.setValueTextColor(ColorTemplate.LIBERTY_COLORS[0])
-            view.xAxis.textColor = 0xffffff
-            view.legend.textColor = ColorTemplate.LIBERTY_COLORS[0]
-            desc.textColor = 0xffffff
-            view.axisLeft.textColor = ColorTemplate.LIBERTY_COLORS[0]
-            view.axisRight.textColor = ColorTemplate.LIBERTY_COLORS[0]
-            view.description = desc
-            view.data = data
-            view // return the view
-        },
-        update = { view ->
-            // Update the view
-            view.invalidate()
-        }
-    )
-}
