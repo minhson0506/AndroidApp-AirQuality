@@ -1,5 +1,6 @@
 package com.example.airquality.components
 
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.compose.foundation.Image
@@ -42,6 +43,7 @@ import com.example.airquality.ui.theme.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.io.IOException
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
@@ -131,12 +133,12 @@ fun Dashboard(model: DataViewModel) {
     // set device + room name
     var title by remember { mutableStateOf("") }
 
-    if(sensorData?.deviceName != null && deviceName == "") {
-        title = sensorData!!.deviceName.toString()
+    title = if(sensorData?.deviceName != null && deviceName == "") {
+        sensorData!!.deviceName.toString()
     } else if(sensorData?.deviceName != null) {
-        title = sensorData!!.deviceName + "-" + deviceName
+        sensorData!!.deviceName + "-" + deviceName
     } else {
-        title = "ISD"
+        "ISD"
     }
 
     val scheduledExecutorService: ScheduledExecutorService =
@@ -194,7 +196,7 @@ fun Dashboard(model: DataViewModel) {
                     )
 
                         Text(
-                            text = if(weather?.location?.name != null) weather!!.location.name else "No location",
+                            text = if(weather?.location?.name != null || weather?.location?.name != "null") weather!!.location.name else "No location",
                             fontFamily = bold,
                             fontSize = 18.sp,
                             color = Black
@@ -203,16 +205,26 @@ fun Dashboard(model: DataViewModel) {
 
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    if (image != null) {
-                        val myBitmap = BitmapFactory.decodeFile(image)
-                        Image(
-                            bitmap = myBitmap.asImageBitmap(),
-                            contentDescription = weather?.current?.condition?.text,
-                            modifier = Modifier
-                                .size(50.dp)
-                                .padding(end = 5.dp)
-                        )
-                    }
+//                    if (image != null) {
+//                        Log.d(MainActivity.tag, "Dashboard: image url ${image}")
+//                        var myBitmap: Bitmap? = null
+//                        try {
+//                            Log.d(MainActivity.tag, "Dashboard: start read image")
+//                            myBitmap = BitmapFactory.decodeFile(image)
+//                        } catch (error: Exception) {
+//                            Log.d(MainActivity.tag, "Dashboard: error when read image ${error}")
+//                        }
+////                        val myBitmap = BitmapFactory.decodeFile(image)
+//                        if (myBitmap != null) {
+//                            Image(
+//                                bitmap = myBitmap.asImageBitmap(),
+//                                contentDescription = weather?.current?.condition?.text,
+//                                modifier = Modifier
+//                                    .size(50.dp)
+//                                    .padding(end = 5.dp)
+//                            )
+//                        }
+//                    }
                     Text(if(weather?.current?.temp != null)
                         weather?.current?.temp?.toInt().toString() + "°C" else "",
                         fontFamily = medium,

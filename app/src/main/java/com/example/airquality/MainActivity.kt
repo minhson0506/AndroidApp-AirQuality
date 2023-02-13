@@ -99,7 +99,7 @@ sealed class BottomNavItem(var title: String, var icon: Int, var screen_route: S
 @ExperimentalFoundationApi
 @Composable
 fun NavigationGraph(
-    navController: NavHostController, model: DataViewModel
+    navController: NavHostController, model: DataViewModel,
 ) {
     NavHost(navController, startDestination = BottomNavItem.Home.screen_route) {
         composable(BottomNavItem.Home.screen_route) {
@@ -136,13 +136,14 @@ fun BottomNavigationBar(navController: NavController) {
                         painterResource(id = item.icon),
                         contentDescription = item.title,
                         modifier = Modifier.size(25.dp),
-                        colorFilter = if(selected) ColorFilter.tint(color = Blue) else ColorFilter.tint(color = DarkGray)
+                        colorFilter = if (selected) ColorFilter.tint(color = Blue) else ColorFilter.tint(
+                            color = DarkGray)
                     )
                 },
                 label = {
                     Text(
                         text = item.title,
-                        color = if(selected) Blue else Color.Black,
+                        color = if (selected) Blue else Color.Black,
                         fontFamily = regular
                     )
                 },
@@ -167,7 +168,8 @@ fun BottomNavigationBar(navController: NavController) {
 
 @ExperimentalFoundationApi
 @Composable
-fun MainScreen( model: DataViewModel
+fun MainScreen(
+    model: DataViewModel,
 ) {
     val navController = rememberNavController()
     var showBottomBar by remember { mutableStateOf(true) }
@@ -199,17 +201,23 @@ fun MainScreen( model: DataViewModel
 fun checkPermission(activity: Activity) {
     if (
         (activity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) ||
-        (activity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        (activity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) ||
+        (activity.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) ||
+        (activity.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
     ) {
         Log.d(MainActivity.tag, "No permission")
         activity.requestPermissions(
             arrayOf(
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE
             ), 1
         )
         while ((activity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) ||
-            (activity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+            (activity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) ||
+            (activity.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) ||
+            (activity.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
         ) {
             Thread.sleep(100)
         }

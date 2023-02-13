@@ -27,17 +27,26 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors.newFixedThreadPool
 
 fun disconnectWifi(context: Context, wifiNetwork: String) {
-    WifiUtils.withContext(context)
-        .disconnect(object : DisconnectionSuccessListener {
-            override fun success() {
-                Log.d(MainActivity.tag, "disconnect success: ")
-            }
+//    WifiUtils.withContext(context)
+//        .disconnect(object : DisconnectionSuccessListener {
+//            override fun success() {
+//                Log.d(MainActivity.tag, "disconnect success: ")
+//            }
+//
+//            override fun failed(errorCode: DisconnectionErrorCode) {
+//                Log.d(MainActivity.tag, "disconnect fail: ")
+//
+//            }
+//        })
+    WifiUtils.withContext(context).remove(wifiNetwork, object : RemoveSuccessListener {
+        override fun success() {
+            Log.d(MainActivity.tag, "success:  remove ${wifiNetwork}")
+        }
 
-            override fun failed(errorCode: DisconnectionErrorCode) {
-                Log.d(MainActivity.tag, "disconnect fail: ")
-
-            }
-        })
+        override fun failed(errorCode: RemoveErrorCode) {
+            Log.d(MainActivity.tag, "failed: remove ${wifiNetwork}")
+        }
+    })
 }
 
 fun removeWifi(context: Context, wifiNetwork: String) {
@@ -57,6 +66,10 @@ fun scanWifi(model: DataViewModel, context: Context) {
     Log.d(MainActivity.tag, "scanWifi: wifiNetworks ${model.wifiNetworks}")
     WifiUtils.withContext(context).enableWifi()
     WifiUtils.withContext(context).scanWifi { scanResults ->
+        scanResults.forEach {
+            Log.d(MainActivity.tag, "scanWifi: ${it}")
+        }
+
         val listWifi = scanResults.map { item ->
             item.toString().split(",")[0].split(":")[1].trim()
         }
@@ -65,6 +78,7 @@ fun scanWifi(model: DataViewModel, context: Context) {
                 if (item.startsWith("\"ISD")) item.split("\"")[1] else item
             }
         if (!listWifi.isNullOrEmpty()) {
+//            listWifi.forEach { disconnectWifi(context, it) }
             model.wifiNetworks.postValue(listWifi)
         }
     }.start()
@@ -78,8 +92,10 @@ fun connectDevice(
     model: DataViewModel,
 ) {
     val sensorData: List<SensorModel>? by model.getAllData().observeAsState(null)
-    //    removeWifi(context, ssid)
-//    Thread.sleep(100)
+//    //    removeWifi(context, ssid)
+////    Thread.sleep(100)
+//    disconnectWifi(context, ssid)
+//    Thread.sleep(1000)
     WifiUtils.withContext(context).connectWith(ssid, "sensor22").setTimeout(40000)
         .onConnectionResult(object : ConnectionSuccessListener {
             override fun success() {

@@ -2,6 +2,7 @@ package com.example.airquality.services
 
 import android.content.Context
 import android.content.ContextWrapper
+import android.os.Environment
 import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -53,27 +54,31 @@ fun GetWeather(model: DataViewModel) {
         if (weather != null) {
             val destinationFile = "image.jpg"
             val url = URL("https:" + weather!!.current.condition.icon)
+            Log.d(MainActivity.tag, "GetWeather: url ${url} ")
             val cw = ContextWrapper(context)
             val directory = cw.getDir("imageDir", Context.MODE_PRIVATE)
+//            val directory = Environment.getExternalStorageDirectory()
+            Log.d(MainActivity.tag, "GetWeather: directory is ${directory}")
             val path = File(directory, destinationFile)
             Log.d(MainActivity.tag, "GetWeather: $path")
-            thread {
-                try {
-                    val inputStream = url.openStream()
-                    val os: OutputStream = FileOutputStream(path)
-                    val buffer = ByteArray(4 * 1024) // buffer size
-                    while (true) {
-                        val byteCount = inputStream.read(buffer)
-                        if (byteCount < 0) break
-                        os.write(buffer, 0, byteCount)
-                    }
-                    os.flush()
-                    inputStream.close()
-                    os.close()
-                } catch (error: IOException) {
-                    Log.d(MainActivity.tag, "GetWeather: $error")
-                }
-            }
+//            thread {
+//                try {
+//                    Log.d(MainActivity.tag, "GetWeather: start to down image")
+//                    val inputStream = url.openStream()
+//                    val os: OutputStream = FileOutputStream(path)
+//                    val buffer = ByteArray(4 * 1024) // buffer size
+//                    while (true) {
+//                        val byteCount = inputStream.read(buffer)
+//                        if (byteCount < 0) break
+//                        os.write(buffer, 0, byteCount)
+//                    }
+//                    os.flush()
+//                    inputStream.close()
+//                    os.close()
+//                } catch (error: IOException) {
+//                    Log.d(MainActivity.tag, "GetWeather error when download image: $error")
+//                }
+//            }
 //            val image = rememberImagePainter(data = "https:" + weather!!.current.condition.icon)
                 model.image.postValue(path.absolutePath)
         }
