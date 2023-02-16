@@ -4,6 +4,9 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.paging.DataSource
+import androidx.paging.PagedList
+import androidx.paging.toLiveData
 import coil.compose.ImagePainter
 import com.example.airquality.services.room.RoomDB
 import com.example.airquality.services.room.SensorModel
@@ -28,18 +31,20 @@ class DataViewModel(application: Application): AndroidViewModel(application) {
     // store data of sensor in inside
 //    val sensorData = MutableLiveData<SensorResponse>(null)
 
-    val indicator = MutableLiveData<String>("co2")
+    val indicator = MutableLiveData<String>("PM10")
     // data from Room
     private val roomDB = RoomDB.getInstance(application)
     private val viewModelJob = Job()
     private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Default)
 
     // get and set data of venues
-    fun getAllData(): LiveData<List<SensorModel>> = roomDB.sensorDao().getAll()
+//    fun getAllData(): LiveData<List<SensorModel>> = roomDB.sensorDao().getAll()
 
     fun getLatest(): LiveData<SensorModel> = roomDB.sensorDao().getLatest()
 
     fun getDataInDate(date: String): LiveData<List<SensorModel>> = roomDB.sensorDao().getDataInDate(date = date)
+
+    fun getAllData(): LiveData<PagedList<SensorModel>> = roomDB.sensorDao().getAll().toLiveData(pageSize = 5000)
 
     fun insert(sensorModel: SensorModel) {
         coroutineScope.launch {

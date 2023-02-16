@@ -131,12 +131,12 @@ fun Dashboard(model: DataViewModel) {
     // set device + room name
     var title by remember { mutableStateOf("") }
 
-    if(sensorData?.deviceName != null && deviceName == "") {
-        title = sensorData!!.deviceName.toString()
-    } else if(sensorData?.deviceName != null) {
-        title = sensorData!!.deviceName + "-" + deviceName
+    title = if (sensorData?.deviceName != null && deviceName == "") {
+        sensorData!!.deviceName.toString()
+    } else if (sensorData?.deviceName != null) {
+        sensorData!!.deviceName + "-" + deviceName
     } else {
-        title = "ISD"
+        "ISD"
     }
 
     val scheduledExecutorService: ScheduledExecutorService =
@@ -158,22 +158,22 @@ fun Dashboard(model: DataViewModel) {
         ) {
             Column(modifier = Modifier.padding(top = 10.dp)) {
 
-                    Text(
-                        text = title,
-                        fontFamily = bold,
-                        fontSize = 18.sp,
-                        color = Black
-                    )
+                Text(
+                    text = title,
+                    fontFamily = bold,
+                    fontSize = 18.sp,
+                    color = Black
+                )
 
                 val time = sensorData?.time?.split(",")
                 Text(
-                    text = if(time?.get(0) != null) "Date: ${time[0]}" else "",
+                    text = if (time?.get(0) != null) "Date: ${time[0]}" else "",
                     fontFamily = medium,
                     fontSize = 16.sp,
                     color = DarkGray
                 )
                 Text(
-                    text = if(time?.get(1) != null) "Time: ${time[1].trim()}" else "",
+                    text = if (time?.get(1) != null) "Time: ${time[1].trim()}" else "",
                     fontFamily = medium,
                     fontSize = 16.sp,
                     color = DarkGray
@@ -193,12 +193,12 @@ fun Dashboard(model: DataViewModel) {
                         colorFilter = ColorFilter.tint(color = Red)
                     )
 
-                        Text(
-                            text = if(weather?.location?.name != null) weather!!.location.name else "No location",
-                            fontFamily = bold,
-                            fontSize = 18.sp,
-                            color = Black
-                        )
+                    Text(
+                        text = if (weather?.location?.name != null && weather?.location?.name != "null") weather!!.location.name else "No location",
+                        fontFamily = bold,
+                        fontSize = 18.sp,
+                        color = Black
+                    )
 
 
                 }
@@ -213,7 +213,7 @@ fun Dashboard(model: DataViewModel) {
                                 .padding(end = 5.dp)
                         )
                     }
-                    Text(if(weather?.current?.temp != null)
+                    Text(if (weather?.current?.temp != null)
                         weather?.current?.temp?.toInt().toString() + "°C" else "",
                         fontFamily = medium,
                         fontSize = 16.sp,
@@ -315,7 +315,7 @@ fun Dashboard(model: DataViewModel) {
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                NumberText(text = if(it.data != null) it.data.toString() else "")
+                                NumberText(text = if (it.data != null) it.data.toString() else "")
                                 UnitText(text = it.unit)
                             }
                         }
@@ -332,12 +332,13 @@ data class Value(
     val image: Int,
     val data: Double?,
     val unit: String,
-    val desc: String
+    val desc: String,
 )
 
 @Composable
 fun UpdateData(scheduledExecutorService: ScheduledExecutorService, model: DataViewModel) {
-    val sensorData: List<SensorModel>? by model.getAllData().observeAsState(null)
+//    val sensorData: List<SensorModel>? by model.getAllData().observeAsState(null)
+    val sensorData: SensorModel? by model.getLatest().observeAsState()
 
     scheduledExecutorService.scheduleAtFixedRate({
         // repeat task: update new data
@@ -349,52 +350,78 @@ fun UpdateData(scheduledExecutorService: ScheduledExecutorService, model: DataVi
                 Log.d(MainActivity.tag, "onResponse: " + response.body())
                 if (response.isSuccessful) {
                     if (sensorData == null) {
-                        model.insert(
-                            SensorModel(
-                                id = 0,
-                                alt = response.body()?.alt,
-                                co2 = response.body()?.co2,
-                                deviceId = response.body()?.deviceId,
-                                deviceName = response.body()?.deviceName,
-                                hum = response.body()?.hum,
-                                lux = response.body()?.lux,
-                                noise = response.body()?.noise,
-                                pm1 = response.body()?.pm1,
-                                pm10 = response.body()?.pm10,
-                                pm2 = response.body()?.pm2,
-                                pm4 = response.body()?.pm4,
-                                pres = response.body()?.pres,
-                                temp = response.body()?.temp,
-                                time = response.body()?.time,
+                        if (response.body()?.alt != null) {
+                            model.insert(
+                                SensorModel(
+                                    id = 0,
+                                    alt = response.body()?.alt,
+                                    co2 = response.body()?.co2,
+                                    deviceId = response.body()?.deviceId,
+                                    deviceName = response.body()?.deviceName,
+                                    hum = response.body()?.hum,
+                                    lux = response.body()?.lux,
+                                    noise = response.body()?.noise,
+                                    pm1 = response.body()?.pm1,
+                                    pm10 = response.body()?.pm10,
+                                    pm2 = response.body()?.pm2,
+                                    pm4 = response.body()?.pm4,
+                                    pres = response.body()?.pres,
+                                    temp = response.body()?.temp,
+                                    time = response.body()?.time,
+                                ))
+                        }
+                    } else
+//                        if (!sensorData?.map { item -> item.time }
+//                            ?.contains(response.body()?.time)!!) {
+//                        model.insert(
+//                            SensorModel(
+//                                id = 0,
+//                                alt = response.body()?.alt,
+//                                co2 = response.body()?.co2,
+//                                deviceId = response.body()?.deviceId,
+//                                deviceName = response.body()?.deviceName,
+//                                hum = response.body()?.hum,
+//                                lux = response.body()?.lux,
+//                                noise = response.body()?.noise,
+//                                pm1 = response.body()?.pm1,
+//                                pm10 = response.body()?.pm10,
+//                                pm2 = response.body()?.pm2,
+//                                pm4 = response.body()?.pm4,
+//                                pres = response.body()?.pres,
+//                                temp = response.body()?.temp,
+//                                time = response.body()?.time,
+//                            )
+//                        )
+                    {
+                        if (sensorData?.time != response.body()?.time) {
+                            Log.d(MainActivity.tag, "onResponse: insert new data with time ${response.body()?.time}")
+                            if (response.body()?.alt != null)
+                            model.insert(
+                                SensorModel(
+                                    id = 0,
+                                    alt = response.body()?.alt,
+                                    co2 = response.body()?.co2,
+                                    deviceId = response.body()?.deviceId,
+                                    deviceName = response.body()?.deviceName,
+                                    hum = response.body()?.hum,
+                                    lux = response.body()?.lux,
+                                    noise = response.body()?.noise,
+                                    pm1 = response.body()?.pm1,
+                                    pm10 = response.body()?.pm10,
+                                    pm2 = response.body()?.pm2,
+                                    pm4 = response.body()?.pm4,
+                                    pres = response.body()?.pres,
+                                    temp = response.body()?.temp,
+                                    time = response.body()?.time,
+                                )
                             )
-                        )
-                    } else if (!sensorData?.map { item -> item.time }
-                            ?.contains(response.body()?.time)!!) {
-                        model.insert(
-                            SensorModel(
-                                id = 0,
-                                alt = response.body()?.alt,
-                                co2 = response.body()?.co2,
-                                deviceId = response.body()?.deviceId,
-                                deviceName = response.body()?.deviceName,
-                                hum = response.body()?.hum,
-                                lux = response.body()?.lux,
-                                noise = response.body()?.noise,
-                                pm1 = response.body()?.pm1,
-                                pm10 = response.body()?.pm10,
-                                pm2 = response.body()?.pm2,
-                                pm4 = response.body()?.pm4,
-                                pres = response.body()?.pres,
-                                temp = response.body()?.temp,
-                                time = response.body()?.time,
-                            )
-                        )
+                        }
                     }
                 }
             }
 
             override fun onFailure(call: Call<SensorResponse>, t: Throwable) {
-                Log.d(MainActivity.tag, "onFailure: " + t.message)
+                Log.d(MainActivity.tag, "onFailure: when update" + t.message)
             }
         })
     }, 0, 30, TimeUnit.SECONDS)

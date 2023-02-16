@@ -77,9 +77,12 @@ fun connectDevice(
     navController: NavController,
     model: DataViewModel,
 ) {
-    val sensorData: List<SensorModel>? by model.getAllData().observeAsState(null)
-    //    removeWifi(context, ssid)
+    val data: List<SensorModel>? by model.getAllData().observeAsState(null)
+
+//    removeWifi(context, ssid)
 //    Thread.sleep(100)
+
+    val sensorData = data?.filter { it != null }
     WifiUtils.withContext(context).connectWith(ssid, "sensor22").setTimeout(40000)
         .onConnectionResult(object : ConnectionSuccessListener {
             override fun success() {

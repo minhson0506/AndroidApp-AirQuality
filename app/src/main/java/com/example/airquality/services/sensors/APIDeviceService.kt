@@ -11,6 +11,9 @@ interface APIDeviceService {
 
     @GET("getAll")
     fun getAll(): Call<List<SensorResponse>>
+
+    @GET("getLatest?count=10000")
+    fun getNew(): Call<List<SensorResponse>>
 }
 
 object ApiDevice {

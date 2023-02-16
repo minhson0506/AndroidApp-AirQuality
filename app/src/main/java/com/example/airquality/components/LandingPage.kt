@@ -28,6 +28,7 @@ import com.example.airquality.R
 import com.example.airquality.services.DataViewModel
 import com.example.airquality.services.GetWeather
 import com.example.airquality.services.connectDevice
+import com.example.airquality.services.room.SensorModel
 import com.example.airquality.services.scanWifi
 import com.example.airquality.ui.theme.*
 
@@ -44,6 +45,21 @@ fun LandingPage(model: DataViewModel, navController: NavController) {
     val wifiNetworks: List<String>? by model.wifiNetworks.observeAsState(null)
 
     var wifiName by remember { mutableStateOf<String?>(null) }
+
+//    val data: List<SensorModel>? by model.getAllData().observeAsState(null)
+//
+//    if (data != null && (data?.size ?: 0) > 1) {
+//        val dataEdit = data!!.filterNotNull()
+//        Log.d(MainActivity.tag, "data in page $dataEdit with size ${dataEdit?.size}")
+//        Log.d(MainActivity.tag, "data in page with size ${dataEdit?.size}")
+//        Log.d(MainActivity.tag, "data in page first element ${dataEdit?.get(0).toString()}")
+//        dataEdit?.forEachIndexed { index, sensorModel ->
+//            if (index > dataEdit?.size?.minus(10) ?: 100000000)
+//                Log.d(MainActivity.tag, "data in page last element with index $index ${sensorModel.toString()}")
+//        }
+//        Log.d(MainActivity.tag, "data in page last element ${dataEdit?.get(dataEdit!!.size -1).toString()}")
+//
+//    }
 
     GetWeather(model = model)
 
@@ -102,7 +118,10 @@ fun LandingPage(model: DataViewModel, navController: NavController) {
                                 .verticalScroll(rememberScrollState())
                         ) {
                             wifiNetworks?.forEach {
-                                Button(onClick = { wifiName = it}, modifier = Modifier.width((cardSize * 0.8).dp).padding(bottom = 10.dp).align(CenterHorizontally), colors = ButtonDefaults.buttonColors(backgroundColor = White),) {
+                                Button(onClick = { wifiName = it}, modifier = Modifier
+                                    .width((cardSize * 0.8).dp)
+                                    .padding(bottom = 10.dp)
+                                    .align(CenterHorizontally), colors = ButtonDefaults.buttonColors(backgroundColor = White),) {
                                     Text(text = it, fontFamily = bold, fontSize = 18.sp, color = Black, textAlign = TextAlign.Center)
                                 }
 

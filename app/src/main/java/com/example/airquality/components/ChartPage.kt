@@ -47,9 +47,7 @@ fun ChartPage(model: DataViewModel) {
     Log.d(MainActivity.tag, "ChartPage: today $today")
     var date: String by remember { mutableStateOf(today) }
 
-    val indicator: String by model.indicator.observeAsState("pm10")
-
-
+    val indicator: String by model.indicator.observeAsState("PM10")
 
     Column(
         modifier = Modifier

@@ -1,6 +1,7 @@
 package com.example.airquality.services.room
 
 import androidx.lifecycle.LiveData
+import androidx.paging.DataSource
 import androidx.room.*
 
 @Dao
@@ -14,8 +15,11 @@ interface SensorDAO {
     @Update
     fun update(data: SensorModel)
 
-    @Query("SELECT * FROM sensormodel")
-    fun getAll(): LiveData<List<SensorModel>>
+//    @Query("SELECT * FROM sensormodel")
+//    fun getAll(): LiveData<List<SensorModel>>
+
+    @Query("SELECT * FROM sensormodel ORDER BY time")
+    fun getAll(): DataSource.Factory<Int, SensorModel>
 
     @Query("SELECT * FROM sensormodel ORDER BY time DESC LIMIT 1")
     fun getLatest(): LiveData<SensorModel>

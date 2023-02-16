@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
@@ -80,12 +81,12 @@ fun LineGraph(model: DataViewModel, date: String, indicator: String) {
                 ?.let { it2 -> listData.add(it2) }
         }
         if (dataDisplay != listData) {
-            Log.d(MainActivity.tag, "LineGraph: update")
-            dataDisplay = listData
+            Log.d(MainActivity.tag, "LineGraph: update $listData")
+            dataDisplay = listData.sortedByDescending { item -> item.x }
         }
 
         // less than 8 hours a day have data
-    } else if ((time?.size ?: 0) >= 3) {
+    } else if (time?.size ?: 0 > 0) {
         val listData = mutableListOf<DataPoint>()
         time?.map {
             indicatorArray.filter { item ->
@@ -114,15 +115,14 @@ fun LineGraph(model: DataViewModel, date: String, indicator: String) {
                     }
                     ?.let { it2 -> listData.add(it2) }
             }
-
         }
         if (dataDisplay != listData) {
-            Log.d(MainActivity.tag, "LineGraph: update")
-            dataDisplay = listData
+            Log.d(MainActivity.tag, "LineGraph: update $listData")
+            dataDisplay = listData.sortedByDescending { item -> item.x }
         }
-
+    } else {
+        dataDisplay = null
     }
-
 
     dataDisplay?.forEach {
         Log.d(
@@ -160,6 +160,8 @@ fun LineGraph(model: DataViewModel, date: String, indicator: String) {
             }
 
         )
+    } else {
+        Text("No data in that date")
     }
 }
 
