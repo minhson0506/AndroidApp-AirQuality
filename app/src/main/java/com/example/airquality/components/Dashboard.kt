@@ -55,11 +55,12 @@ fun Dashboard(model: DataViewModel) {
     val weather: WeatherResponse? by model.weather.observeAsState(null)
     val image: String? by model.image.observeAsState(null)
 
-    val deviceName by model.deviceName.observeAsState("")
+//    val deviceName by model.deviceName.observeAsState("")
 
     val minValue by model.minArray.observeAsState(minValueInit)
     val maxValue by model.maxArray.observeAsState(maxValueInit)
 
+    Log.d(MainActivity.tag, "time of record" + sensorData?.time)
     val array = listOf(
         null, null,
         Value(
@@ -109,7 +110,7 @@ fun Dashboard(model: DataViewModel) {
         )
     )
 
-    // init noti
+    // init notification
     val enableNoti by model.enableNoti.observeAsState(false)
 
     if (enableNoti) {
@@ -131,11 +132,13 @@ fun Dashboard(model: DataViewModel) {
     // set device + room name
     var title by remember { mutableStateOf("") }
 
-    title = if (sensorData?.deviceName != null && deviceName == "") {
+    title = if (sensorData?.deviceName != null && sensorData?.deviceName == "") {
         sensorData!!.deviceName.toString()
-    } else if (sensorData?.deviceName != null) {
-        sensorData!!.deviceName + "-" + deviceName
-    } else {
+    }
+//    else if (sensorData?.deviceName != null) {
+//        sensorData!!.deviceName + "-" + deviceName
+//    }
+    else {
         "ISD"
     }
 
@@ -350,26 +353,25 @@ fun UpdateData(scheduledExecutorService: ScheduledExecutorService, model: DataVi
                 Log.d(MainActivity.tag, "onResponse: " + response.body())
                 if (response.isSuccessful) {
                     if (sensorData == null) {
-                        if (response.body()?.alt != null) {
-                            model.insert(
-                                SensorModel(
-                                    id = 0,
-                                    alt = response.body()?.alt,
-                                    co2 = response.body()?.co2,
-                                    deviceId = response.body()?.deviceId,
-                                    deviceName = response.body()?.deviceName,
-                                    hum = response.body()?.hum,
-                                    lux = response.body()?.lux,
-                                    noise = response.body()?.noise,
-                                    pm1 = response.body()?.pm1,
-                                    pm10 = response.body()?.pm10,
-                                    pm2 = response.body()?.pm2,
-                                    pm4 = response.body()?.pm4,
-                                    pres = response.body()?.pres,
-                                    temp = response.body()?.temp,
-                                    time = response.body()?.time,
-                                ))
-                        }
+                        model.insert(
+                            SensorModel(
+                                id = 0,
+                                alt = response.body()?.alt,
+                                co2 = response.body()?.co2,
+                                deviceId = response.body()?.deviceId,
+                                deviceName = response.body()?.deviceName,
+                                hum = response.body()?.hum,
+                                lux = response.body()?.lux,
+                                noise = response.body()?.noise,
+                                pm1 = response.body()?.pm1,
+                                pm10 = response.body()?.pm10,
+                                pm2 = response.body()?.pm2,
+                                pm4 = response.body()?.pm4,
+                                pres = response.body()?.pres,
+                                temp = response.body()?.temp,
+                                time = response.body()?.time,
+                            ))
+
                     } else
 //                        if (!sensorData?.map { item -> item.time }
 //                            ?.contains(response.body()?.time)!!) {
@@ -394,8 +396,8 @@ fun UpdateData(scheduledExecutorService: ScheduledExecutorService, model: DataVi
 //                        )
                     {
                         if (sensorData?.time != response.body()?.time) {
-                            Log.d(MainActivity.tag, "onResponse: insert new data with time ${response.body()?.time}")
-                            if (response.body()?.alt != null)
+                            Log.d(MainActivity.tag,
+                                "onResponse: insert new data with time ${response.body()?.time}")
                             model.insert(
                                 SensorModel(
                                     id = 0,

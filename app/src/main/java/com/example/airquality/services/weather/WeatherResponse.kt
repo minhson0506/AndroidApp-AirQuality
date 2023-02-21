@@ -27,11 +27,22 @@ data class Current(
     val temp: Double,
     @SerializedName("temp_f")
     val tempf: Double,
-    val condition: ConditionWeather
+    val condition: ConditionWeather,
+    @SerializedName("pressure_mb")
+    val pressure: Double,
+    val humidity: Int,
+    @SerializedName("air_quality")
+    val airQuality: AirQuality
 )
 
 data class ConditionWeather(
     val text: String,
     val icon: String,
     val code: Int
+)
+
+data class AirQuality(
+    val co: Double,
+    val pm2_5: Double,
+    val pm10: Double
 )

@@ -142,6 +142,8 @@ fun connectDevice(
                     }
                 })
 
+                // wait for getting all data
+                Thread.sleep(2000)
                 // navigate to Dashboard
                 navController.navigate("main")
             }

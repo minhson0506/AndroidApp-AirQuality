@@ -76,6 +76,6 @@ class DataViewModel(application: Application): AndroidViewModel(application) {
     val enableNoti = MutableLiveData(false)
 
     // device name
-    val deviceName = MutableLiveData("")
+//    val deviceName = MutableLiveData("")
 
 }
