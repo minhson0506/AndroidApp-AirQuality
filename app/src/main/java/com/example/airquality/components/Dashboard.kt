@@ -45,6 +45,7 @@ import retrofit2.Response
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
+import kotlin.math.roundToInt
 
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -54,6 +55,7 @@ fun Dashboard(model: DataViewModel) {
     val sensorData: SensorModel? by model.getLatest().observeAsState(null)
     val weather: WeatherResponse? by model.weather.observeAsState(null)
     val image: String? by model.image.observeAsState(null)
+    val string = "Outside is "
 
 //    val deviceName by model.deviceName.observeAsState("")
 
@@ -65,13 +67,15 @@ fun Dashboard(model: DataViewModel) {
         null, null,
         Value(
             0, "Pm10", R.drawable.wind, sensorData?.pm10, "µg/m3",
-            "Particle density of particulate Matter(PM) in size range 0.3µm to 10.0µm in µg/m3"
+            "Particle density of particulate Matter(PM) in size range 0.3µm to 10.0µm in µg/m3",
+            string + ((weather?.current?.airQuality?.pm10?.times(10))?.roundToInt()?.div(10.0) ?: 0)
         ),
         Value(
             1, "Pm2.5", R.drawable.wind,
             sensorData?.pm2,
             "µg/m3",
-            "Particle density of particulate Matter(PM) in size range 0.3µm to 2.5µm in µg/m3"
+            "Particle density of particulate Matter(PM) in size range 0.3µm to 2.5µm in µg/m3",
+            string + ((weather?.current?.airQuality?.pm2_5?.times(10))?.roundToInt()?.div(10.0) ?: 0)
         ),
         Value(
             2,
@@ -79,7 +83,8 @@ fun Dashboard(model: DataViewModel) {
             R.drawable.wind,
             sensorData?.pm1,
             "µg/m3",
-            "Particle density of particulate Matter(PM) in size range 0.3µm to 1.0µm in µg/m3"
+            "Particle density of particulate Matter(PM) in size range 0.3µm to 1.0µm in µg/m3",
+            ""
         ),
         Value(
             3,
@@ -87,26 +92,41 @@ fun Dashboard(model: DataViewModel) {
             R.drawable.wind,
             sensorData?.pm4,
             "µg/m3",
-            "Particle density of particulate Matter(PM) in size range 0.3µm to 4.0µm in µg/m3"
+            "Particle density of particulate Matter(PM) in size range 0.3µm to 4.0µm in µg/m3",
+            ""
         ),
         Value(
             4,
             "CO2", R.drawable.co2,
-            sensorData?.co2, "ppm", "Carbon dioxide in ppm"
+            sensorData?.co2, "ppm", "Carbon dioxide in ppm",
+            string + ((weather?.current?.airQuality?.co?.times(10))?.roundToInt()?.div(10.0) ?: 0)
         ),
-        Value(5, "Humidity", R.drawable.humidity, sensorData?.hum, "RH", "Humidity in %RH"),
-        Value(6, "Light", R.drawable.light, sensorData?.lux, "lux", "Lighting in lux"),
+        Value(5,
+            "Humidity",
+            R.drawable.humidity,
+            sensorData?.hum,
+            "RH",
+            "Humidity in %RH",
+            string + weather?.current?.humidity),
+        Value(6, "Light", R.drawable.light, sensorData?.lux, "lux", "Lighting in lux", ""),
         Value(
             7, "Noise", R.drawable.sound,
             sensorData?.noise,
-            "dB", "Loudness in dB"
+            "dB", "Loudness in dB", ""
         ),
-        Value(8, "Pressure", R.drawable.pressure, sensorData?.pres, "hPa", "Pressure in hPa"),
+        Value(8,
+            "Pressure",
+            R.drawable.pressure,
+            sensorData?.pres,
+            "hPa",
+            "Pressure in hPa",
+            string + ((weather?.current?.pressure?.times(10))?.roundToInt()?.div(10.0) ?: 0)),
         Value(
             9,
             "Temp", R.drawable.temp,
             sensorData?.temp,
             "°C", "Temperature in °C",
+            string + ((weather?.current?.temp?.times(10))?.roundToInt()?.div(10.0) ?: 0)
         )
     )
 
@@ -132,7 +152,7 @@ fun Dashboard(model: DataViewModel) {
     // set device + room name
     var title by remember { mutableStateOf("") }
 
-    title = if (sensorData?.deviceName != null && sensorData?.deviceName == "") {
+    title = if (sensorData?.deviceName != null && sensorData?.deviceName != "") {
         sensorData!!.deviceName.toString()
     }
 //    else if (sensorData?.deviceName != null) {
@@ -255,13 +275,18 @@ fun Dashboard(model: DataViewModel) {
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.Center
                             ) {
-                                it?.desc?.let { it1 ->
-                                    Text(
-                                        text = it1,
-                                        color = Color.Black,
+//                                it?.desc?.let { it1 ->
+//                                    Text(
+//                                        text = it1,
+//                                        color = Color.Black,
+//                                        modifier = Modifier.padding(vertical = 5.dp),
+//                                        fontFamily = medium
+//                                    )
+//                                }
+                                if (it != null) {
+                                    Text(text = it.desc + " " + it.outside, color = Color.Black,
                                         modifier = Modifier.padding(vertical = 5.dp),
-                                        fontFamily = medium
-                                    )
+                                        fontFamily = medium)
                                 }
                             }
                         }
@@ -336,6 +361,7 @@ data class Value(
     val data: Double?,
     val unit: String,
     val desc: String,
+    val outside: String,
 )
 
 @Composable
@@ -423,7 +449,7 @@ fun UpdateData(scheduledExecutorService: ScheduledExecutorService, model: DataVi
             }
 
             override fun onFailure(call: Call<SensorResponse>, t: Throwable) {
-                Log.d(MainActivity.tag, "onFailure: when update" + t.message)
+                Log.d(MainActivity.tag, "onFailure: when update " + t.message)
             }
         })
     }, 0, 30, TimeUnit.SECONDS)

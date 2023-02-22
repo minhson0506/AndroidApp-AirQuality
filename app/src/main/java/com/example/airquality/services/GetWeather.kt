@@ -46,7 +46,7 @@ fun GetWeather(model: DataViewModel) {
                 }
 
                 override fun onFailure(call: Call<WeatherResponse>, t: Throwable) {
-                    Log.d(MainActivity.tag, "onFailure: " + t.message)
+                    Log.d(MainActivity.tag, "onFailure: when get weather info" + t.message)
                 }
             })
         Log.d(MainActivity.tag, "GetWeather: $weather")

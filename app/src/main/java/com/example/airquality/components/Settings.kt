@@ -138,6 +138,10 @@ fun Settings(navController: NavController, model: DataViewModel) {
 
                                     override fun onFailure(call: Call<String>, t: Throwable) {
                                         Log.d(MainActivity.tag, "onFailure: change device name fail with ${t.message}")
+                                        // wait to restart hardware
+                                        Thread.sleep(2000)
+                                        // navigate to landing page
+//                                        navController.navigate("landingPage")
                                     }
                                 })
                             }

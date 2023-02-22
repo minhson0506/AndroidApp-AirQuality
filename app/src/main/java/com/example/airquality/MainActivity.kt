@@ -14,15 +14,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Home
-import androidx.compose.material.icons.rounded.Menu
-import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -56,7 +51,7 @@ class MainActivity : ComponentActivity() {
         model = DataViewModel(application = application)
 
         setContent {
-            val navController = rememberNavController()
+            val mainNavController = rememberNavController()
 
 
             AirQualityTheme {
@@ -65,13 +60,15 @@ class MainActivity : ComponentActivity() {
                 // A surface container using the 'background' color from the theme
                 Surface(modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background) {
-                    NavHost(navController, startDestination = "landingPage") {
+                    NavHost(mainNavController, startDestination = "landingPage") {
                         composable("landingPage") {
-                            LandingPage(model, navController)
+                            LandingPage(model, mainNavController)
                         }
                         composable("main") {
-                            MainScreen(model = model)
+                            MainScreen(mainNavController, model = model)
+//                            NavigationGraph(navController = navController, model = model)
                         }
+
                     }
                 }
             }
@@ -98,7 +95,7 @@ sealed class BottomNavItem(var title: String, var icon: Int, var screen_route: S
 
 @ExperimentalFoundationApi
 @Composable
-fun NavigationGraph(
+fun NavigationGraph( mainNavController: NavController,
     navController: NavHostController, model: DataViewModel
 ) {
     NavHost(navController, startDestination = BottomNavItem.Home.screen_route) {
@@ -109,7 +106,7 @@ fun NavigationGraph(
             ChartPage(model = model)
         }
         composable(BottomNavItem.Setting.screen_route) {
-            Settings(navController = navController, model = model)
+            Settings(navController = mainNavController, model = model)
         }
     }
 }
@@ -167,8 +164,7 @@ fun BottomNavigationBar(navController: NavController) {
 
 @ExperimentalFoundationApi
 @Composable
-fun MainScreen( model: DataViewModel
-) {
+fun MainScreen(mainNavController: NavController, model: DataViewModel) {
     val navController = rememberNavController()
     var showBottomBar by remember { mutableStateOf(true) }
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -188,6 +184,7 @@ fun MainScreen( model: DataViewModel
         content = { innerPadding ->
             Box(modifier = Modifier.padding(innerPadding)) {
                 NavigationGraph(
+                    mainNavController = mainNavController,
                     navController = navController,
                     model = model
                 )
