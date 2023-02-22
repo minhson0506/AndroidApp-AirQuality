@@ -112,4 +112,6 @@ dependencies {
     // optional - RxJava support
     implementation "androidx.paging:paging-rxjava2:$paging_version" // For Kotlin use paging-rxjava2-ktx
 
+    // system bars customization
+    implementation "com.google.accompanist:accompanist-systemuicontroller:0.28.0"
 }

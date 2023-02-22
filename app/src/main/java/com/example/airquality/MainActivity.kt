@@ -31,6 +31,7 @@ import com.example.airquality.components.*
 import com.example.airquality.services.DataViewModel
 import com.example.airquality.services.GetLocation
 import com.example.airquality.ui.theme.*
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 
 class MainActivity : ComponentActivity() {
@@ -56,6 +57,14 @@ class MainActivity : ComponentActivity() {
 
 
             AirQualityTheme {
+                // change status bar color
+                val systemUiController = rememberSystemUiController()
+                SideEffect {
+                    systemUiController.setStatusBarColor(
+                        color = White,
+                        darkIcons = true
+                    )
+                }
                 // start get phone location
                 GetLocation(this, this, model)
                 // A surface container using the 'background' color from the theme

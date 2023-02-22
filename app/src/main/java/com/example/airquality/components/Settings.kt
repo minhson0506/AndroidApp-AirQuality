@@ -43,11 +43,9 @@ fun Settings(navController: NavController, model: DataViewModel) {
 
     val sensorData: SensorModel? by model.getLatest().observeAsState()
 
-//    val deviceName by model.deviceName.observeAsState("")
     if (sensorData != null) {
         var text by remember { mutableStateOf(sensorData?.deviceName?.split("ISD")?.get(1)) }
 
-        Log.d(MainActivity.tag, "Settings: device name $text")
         val checkedState by model.enableNoti.observeAsState(false)
 
         // get size of phone's screen
@@ -118,7 +116,6 @@ fun Settings(navController: NavController, model: DataViewModel) {
                         }
                         IconButton(onClick = {
                             // post change device name and navigator to landing page
-//                        model.deviceName.postValue(text)
                             if (text != null) {
                                 ApiDevice.apiInstance().changeName(Name(text!!))
                                     .enqueue(object : Callback<String> {
@@ -148,6 +145,7 @@ fun Settings(navController: NavController, model: DataViewModel) {
                                                 MainActivity.tag,
                                                 "onFailure: change device name fail with ${t.message}"
                                             )
+                                            model.wifiNetworks.postValue(null)
                                             // navigate to landing page
                                             navController.navigate("landingPage")
                                         }
@@ -204,8 +202,8 @@ fun Settings(navController: NavController, model: DataViewModel) {
 
                     Column(
                         modifier = Modifier
-                            //.height((cardHeight * 0.7).dp)
-                            .verticalScroll(rememberScrollState()).weight(weight =1f, fill = false)
+                            .verticalScroll(rememberScrollState())
+                            .weight(weight = 1f, fill = false)
                     ) {
                         for (item in data) {
                             SampleSlider(
@@ -224,7 +222,9 @@ fun Settings(navController: NavController, model: DataViewModel) {
                             model.minArray.postValue(minValueInit)
                             model.maxArray.postValue(maxValueInit)
                         },
-                        modifier = Modifier.align(CenterHorizontally).padding(top = 10.dp, bottom = 10.dp),
+                        modifier = Modifier
+                            .align(CenterHorizontally)
+                            .padding(top = 10.dp, bottom = 10.dp),
                         colors = ButtonDefaults.buttonColors(backgroundColor = LightBlue)
                     ) {
                         Text(

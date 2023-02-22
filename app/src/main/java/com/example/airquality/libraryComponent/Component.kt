@@ -47,21 +47,6 @@ fun TextTitle(
 }
 
 @Composable
-fun Headline(
-    text: String,
-    size: Int = 28,
-    color: Color = Black,
-    font: FontFamily = bold,
-) {
-    Text(
-        text = text,
-        color = color,
-        fontFamily = font,
-        fontSize = size.sp
-    )
-}
-
-@Composable
 fun NormalText(
     text: String,
     size: Int = 18,
@@ -70,21 +55,6 @@ fun NormalText(
 ) {
     Text(
         text = text,
-        color = color,
-        fontFamily = font,
-        fontSize = size.sp
-    )
-}
-
-@Composable
-fun BoldText(
-    id: Int,
-    size: Int = 18,
-    color: Color = Color.White,
-    font: FontFamily = bold,
-) {
-    Text(
-        text = stringResource(id = id),
         color = color,
         fontFamily = font,
         fontSize = size.sp
@@ -167,7 +137,6 @@ fun DropDownComp(model: DataViewModel) {
                     selectedItem = selectedOption
                     model.indicator.postValue(selectedOption)
                     model.imageIndicator.postValue(itemImages[listItems.indexOf(selectedOption)])
-//                    Toast.makeText(contextForToast, selectedOption, Toast.LENGTH_SHORT).show()
                     expanded = false
                 }) {
                     Text(text = selectedOption)
@@ -175,34 +144,6 @@ fun DropDownComp(model: DataViewModel) {
             }
         }
     }
-}
-
-@Composable
-fun SampleLineGraph(lines: List<List<DataPoint>>) {
-    // get size of phone's screen
-    val screenPixelDensity = LocalContext.current.resources.displayMetrics.density
-    val dpValue = Resources.getSystem().displayMetrics.widthPixels / screenPixelDensity
-    val cardSize = dpValue * 0.8
-
-    LineGraph(
-        plot = LinePlot(
-            listOf(
-                LinePlot.Line(
-                    lines[0],
-                    LinePlot.Connection(color = Red),
-                    LinePlot.Intersection(color = Red),
-                    LinePlot.Highlight(color = Yellow),
-                )
-            ),
-            grid = LinePlot.Grid(Red, steps = 4),
-        ),
-        modifier = Modifier
-            .width(cardSize.dp)
-            .height(300.dp),
-        onSelection = { xLine, points ->
-            // Do whatever you want here
-        }
-    )
 }
 
 @OptIn(ExperimentalMaterialApi::class)

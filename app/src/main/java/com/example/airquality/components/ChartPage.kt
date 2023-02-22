@@ -25,7 +25,6 @@ import com.example.airquality.MainActivity
 import com.example.airquality.R
 import com.example.airquality.libraryComponent.DropDownComp
 import com.example.airquality.libraryComponent.LineGraph
-import com.example.airquality.libraryComponent.SampleLineGraph
 import com.example.airquality.services.DataViewModel
 import com.example.airquality.ui.theme.*
 import com.mabn.calendarlibrary.ExpandableCalendar
@@ -103,7 +102,6 @@ fun ChartPage(model: DataViewModel) {
                             modifier = Modifier.padding(top = 15.dp, start = 5.dp)
                         )
                     }
-//                    SampleLineGraph(lines = list)
                     LineGraph(model = model, date = date, indicator = indicator)
                 }
             }

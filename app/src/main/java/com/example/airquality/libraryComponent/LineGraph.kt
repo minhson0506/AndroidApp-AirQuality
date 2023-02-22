@@ -2,12 +2,10 @@ package com.example.airquality.libraryComponent
 
 import android.content.Context
 import android.content.res.Resources
+import android.location.GnssAntennaInfo.PhaseCenterOffset
 import android.util.Log
 import androidx.compose.foundation.focusable
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -15,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
@@ -24,6 +23,7 @@ import com.example.airquality.services.room.SensorModel
 import com.example.airquality.ui.theme.Green
 import com.example.airquality.ui.theme.Red
 import com.example.airquality.ui.theme.Yellow
+import com.example.airquality.ui.theme.medium
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.Description
 import com.github.mikephil.charting.data.BarEntry
@@ -101,21 +101,12 @@ fun LineGraph(model: DataViewModel, date: String, indicator: String) {
                         ?.let { it2 -> DataPoint(it2.toFloat(), it1) }
                 }
                 ?.let { it2 -> listData.add(it2) }
-            /*if (length > 1) if (length < 3) {
-                it[1]?.value?.toFloat()
-                    ?.let { it1 ->
-                        it[1]?.time?.split(",")?.get(1)?.trim()?.split(":")?.get(0)
-                            ?.let { it2 -> DataPoint(it2.toFloat(), it1) }
-                    }
-                    ?.let { it2 -> listData.add(it2) }*/
-            //} else {
-                it[length / 2]?.value?.toFloat()
-                    ?.let { it1 ->
-                        it[length / 2]?.time?.split(",")?.get(1)?.trim()?.split(":")?.get(0)
-                            ?.let { it2 -> DataPoint(it2.toFloat(), it1) }
-                    }
-                    ?.let { it2 -> listData.add(it2) }
-           // }
+            it[length / 2]?.value?.toFloat()
+                ?.let { it1 ->
+                    it[length / 2]?.time?.split(",")?.get(1)?.trim()?.split(":")?.get(0)
+                        ?.let { it2 -> DataPoint(it2.toFloat(), it1) }
+                }
+                ?.let { it2 -> listData.add(it2) }
         }
         if (dataDisplay != listData) {
             Log.d(MainActivity.tag, "LineGraph: update $listData")
@@ -162,7 +153,12 @@ fun LineGraph(model: DataViewModel, date: String, indicator: String) {
 
         )
     } else {
-        Text("No data in that date")
+        Text(
+            "No data for this day",
+            fontFamily = medium,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(start = 10.dp, bottom = 10.dp)
+        )
     }
 }
 

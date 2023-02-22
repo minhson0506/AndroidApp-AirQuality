@@ -46,21 +46,6 @@ fun LandingPage(model: DataViewModel, navController: NavController) {
 
     var wifiName by remember { mutableStateOf<String?>(null) }
 
-//    val data: List<SensorModel>? by model.getAllData().observeAsState(null)
-//
-//    if (data != null && (data?.size ?: 0) > 1) {
-//        val dataEdit = data!!.filterNotNull()
-//        Log.d(MainActivity.tag, "data in page $dataEdit with size ${dataEdit?.size}")
-//        Log.d(MainActivity.tag, "data in page with size ${dataEdit?.size}")
-//        Log.d(MainActivity.tag, "data in page first element ${dataEdit?.get(0).toString()}")
-//        dataEdit?.forEachIndexed { index, sensorModel ->
-//            if (index > dataEdit?.size?.minus(10) ?: 100000000)
-//                Log.d(MainActivity.tag, "data in page last element with index $index ${sensorModel.toString()}")
-//        }
-//        Log.d(MainActivity.tag, "data in page last element ${dataEdit?.get(dataEdit!!.size -1).toString()}")
-//
-//    }
-
     GetWeather(model = model)
 
     Column(
@@ -109,20 +94,36 @@ fun LandingPage(model: DataViewModel, navController: NavController) {
                             .fillMaxSize(),
                         horizontalAlignment = CenterHorizontally,
                     ) {
-                        Text(text = "Devices to connect:", modifier = Modifier
-                            .padding(15.dp)
-                            .align(CenterHorizontally), fontFamily = medium, fontSize = 18.sp, color = Black)
+                        Text(
+                            text = "Devices to connect:",
+                            modifier = Modifier
+                                .padding(15.dp)
+                                .align(CenterHorizontally),
+                            fontFamily = medium,
+                            fontSize = 18.sp,
+                            color = Black
+                        )
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .verticalScroll(rememberScrollState())
                         ) {
                             wifiNetworks?.forEach {
-                                Button(onClick = { wifiName = it}, modifier = Modifier
-                                    .width((cardSize * 0.8).dp)
-                                    .padding(bottom = 10.dp)
-                                    .align(CenterHorizontally), colors = ButtonDefaults.buttonColors(backgroundColor = White),) {
-                                    Text(text = it, fontFamily = bold, fontSize = 18.sp, color = Black, textAlign = TextAlign.Center)
+                                Button(
+                                    onClick = { wifiName = it },
+                                    modifier = Modifier
+                                        .width((cardSize * 0.8).dp)
+                                        .padding(bottom = 10.dp)
+                                        .align(CenterHorizontally),
+                                    colors = ButtonDefaults.buttonColors(backgroundColor = White),
+                                ) {
+                                    Text(
+                                        text = it,
+                                        fontFamily = bold,
+                                        fontSize = 18.sp,
+                                        color = Black,
+                                        textAlign = TextAlign.Center
+                                    )
                                 }
 
                             }
@@ -132,36 +133,13 @@ fun LandingPage(model: DataViewModel, navController: NavController) {
             }
         }
 
-//        if (!wifiNetworks.isNullOrEmpty()) {
-//            Column(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .align(CenterHorizontally)
-//            ) {
-//                Text(text = "Wifi Networks", modifier = Modifier.align(CenterHorizontally))
-//                Column(
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .height((dpValue * 0.35).dp)
-//                        .verticalScroll(rememberScrollState())
-//                ) {
-//                    wifiNetworks?.forEach {
-//                        Text(text = it, modifier = Modifier
-//                            .height(30.dp)
-//                            .align(CenterHorizontally)
-//                            .clickable {
-//                                wifiName = it
-//                            })
-//                    }
-//                }
-//            }
-//        }
-
         if (wifiName != null) {
-            connectDevice(ssid = wifiName!!,
+            connectDevice(
+                ssid = wifiName!!,
                 context = context,
                 navController = navController,
-                model = model)
+                model = model
+            )
         }
 
         Column(

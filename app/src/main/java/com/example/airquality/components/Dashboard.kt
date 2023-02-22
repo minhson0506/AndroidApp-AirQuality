@@ -57,13 +57,11 @@ fun Dashboard(model: DataViewModel) {
     val image: String? by model.image.observeAsState(null)
     val string = "Outside is "
 
-//    val deviceName by model.deviceName.observeAsState("")
-
     val minValue by model.minArray.observeAsState(minValueInit)
     val maxValue by model.maxArray.observeAsState(maxValueInit)
 
     Log.d(MainActivity.tag, "time of record" + sensorData?.time)
-    val array = listOf(
+    val dashboardArray = listOf(
         null, null,
         Value(
             0, "Pm10", R.drawable.wind, sensorData?.pm10, "µg/m3",
@@ -75,7 +73,8 @@ fun Dashboard(model: DataViewModel) {
             sensorData?.pm2,
             "µg/m3",
             "Particle density of particulate Matter(PM) in size range 0.3µm to 2.5µm in µg/m3",
-            string + ((weather?.current?.airQuality?.pm2_5?.times(10))?.roundToInt()?.div(10.0) ?: 0)
+            string + ((weather?.current?.airQuality?.pm2_5?.times(10))?.roundToInt()?.div(10.0)
+                ?: 0)
         ),
         Value(
             2,
@@ -101,26 +100,30 @@ fun Dashboard(model: DataViewModel) {
             sensorData?.co2, "ppm", "Carbon dioxide in ppm",
             string + ((weather?.current?.airQuality?.co?.times(10))?.roundToInt()?.div(10.0) ?: 0)
         ),
-        Value(5,
+        Value(
+            5,
             "Humidity",
             R.drawable.humidity,
             sensorData?.hum,
             "RH",
             "Humidity in %RH",
-            string + weather?.current?.humidity),
+            string + weather?.current?.humidity
+        ),
         Value(6, "Light", R.drawable.light, sensorData?.lux, "lux", "Lighting in lux", ""),
         Value(
             7, "Noise", R.drawable.sound,
             sensorData?.noise,
             "dB", "Loudness in dB", ""
         ),
-        Value(8,
+        Value(
+            8,
             "Pressure",
             R.drawable.pressure,
             sensorData?.pres,
             "hPa",
             "Pressure in hPa",
-            string + ((weather?.current?.pressure?.times(10))?.roundToInt()?.div(10.0) ?: 0)),
+            string + ((weather?.current?.pressure?.times(10))?.roundToInt()?.div(10.0) ?: 0)
+        ),
         Value(
             9,
             "Temp", R.drawable.temp,
@@ -134,7 +137,7 @@ fun Dashboard(model: DataViewModel) {
     val enableNoti by model.enableNoti.observeAsState(false)
 
     if (enableNoti) {
-        array.forEach {
+        dashboardArray.forEach {
             if (it?.data != null) {
                 val notification =
                     Notification(context, "Warning: " + it.name + " is out of safe range", "")
@@ -154,11 +157,7 @@ fun Dashboard(model: DataViewModel) {
 
     title = if (sensorData?.deviceName != null && sensorData?.deviceName != "") {
         sensorData!!.deviceName.toString()
-    }
-//    else if (sensorData?.deviceName != null) {
-//        sensorData!!.deviceName + "-" + deviceName
-//    }
-    else {
+    } else {
         "ISD"
     }
 
@@ -236,8 +235,9 @@ fun Dashboard(model: DataViewModel) {
                                 .padding(end = 5.dp)
                         )
                     }
-                    Text(if (weather?.current?.temp != null)
-                        weather?.current?.temp?.toInt().toString() + "°C" else "",
+                    Text(
+                        if (weather?.current?.temp != null)
+                            weather?.current?.temp?.toInt().toString() + "°C" else "",
                         fontFamily = medium,
                         fontSize = 16.sp,
                         color = DarkGray
@@ -250,7 +250,7 @@ fun Dashboard(model: DataViewModel) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
         ) {
-            items(array) {
+            items(dashboardArray) {
 
                 var popupControl by remember { mutableStateOf(false) }
 
@@ -285,12 +285,15 @@ fun Dashboard(model: DataViewModel) {
 //                                }
                                 if (it != null) {
                                     Column() {
-                                        Text(text = it.desc, color = Color.Black,
+                                        Text(
+                                            text = it.desc, color = Color.Black,
                                             modifier = Modifier.padding(vertical = 5.dp),
-                                            fontFamily = medium)
-                                        if(it.outside != "") {
+                                            fontFamily = medium
+                                        )
+                                        if (it.outside != "") {
                                             Text(
-                                                text = it.outside + " "+  it.unit, color = Color.Black,
+                                                text = it.outside + " " + it.unit,
+                                                color = Color.Black,
                                                 modifier = Modifier.padding(vertical = 5.dp),
                                                 fontFamily = medium
                                             )
@@ -375,7 +378,6 @@ data class Value(
 
 @Composable
 fun UpdateData(scheduledExecutorService: ScheduledExecutorService, model: DataViewModel) {
-//    val sensorData: List<SensorModel>? by model.getAllData().observeAsState(null)
     val sensorData: SensorModel? by model.getLatest().observeAsState()
 
     scheduledExecutorService.scheduleAtFixedRate({
@@ -405,34 +407,15 @@ fun UpdateData(scheduledExecutorService: ScheduledExecutorService, model: DataVi
                                 pres = response.body()?.pres,
                                 temp = response.body()?.temp,
                                 time = response.body()?.time,
-                            ))
+                            )
+                        )
 
-                    } else
-//                        if (!sensorData?.map { item -> item.time }
-//                            ?.contains(response.body()?.time)!!) {
-//                        model.insert(
-//                            SensorModel(
-//                                id = 0,
-//                                alt = response.body()?.alt,
-//                                co2 = response.body()?.co2,
-//                                deviceId = response.body()?.deviceId,
-//                                deviceName = response.body()?.deviceName,
-//                                hum = response.body()?.hum,
-//                                lux = response.body()?.lux,
-//                                noise = response.body()?.noise,
-//                                pm1 = response.body()?.pm1,
-//                                pm10 = response.body()?.pm10,
-//                                pm2 = response.body()?.pm2,
-//                                pm4 = response.body()?.pm4,
-//                                pres = response.body()?.pres,
-//                                temp = response.body()?.temp,
-//                                time = response.body()?.time,
-//                            )
-//                        )
-                    {
+                    } else {
                         if (sensorData?.time != response.body()?.time) {
-                            Log.d(MainActivity.tag,
-                                "onResponse: insert new data with time ${response.body()?.time}")
+                            Log.d(
+                                MainActivity.tag,
+                                "onResponse: insert new data with time ${response.body()?.time}"
+                            )
                             model.insert(
                                 SensorModel(
                                     id = 0,
