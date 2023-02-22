@@ -1,6 +1,5 @@
 package com.example.airquality.components
 
-import android.app.Notification
 import android.content.res.Resources
 import android.util.Log
 import android.widget.Toast
@@ -10,22 +9,17 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
-import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
-import androidx.compose.ui.Alignment.Companion.End
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -62,9 +56,8 @@ fun Settings(navController: NavController, model: DataViewModel) {
         val screenPixelDensity = LocalContext.current.resources.displayMetrics.density
         val dpValue = Resources.getSystem().displayMetrics.widthPixels / screenPixelDensity
         val cardSize = dpValue * 0.9
-
-        var columnHeight by remember { mutableStateOf(10f) }
-        Log.d(MainActivity.tag, "Settings: column height of card $columnHeight")
+        val screenHeight = Resources.getSystem().displayMetrics.heightPixels / screenPixelDensity
+        val cardHeight = screenHeight * 0.8
 
         val data = listOf(
             SliderData(0, "Pm10", 1f, 0.0f, 60.0f),
@@ -83,7 +76,7 @@ fun Settings(navController: NavController, model: DataViewModel) {
             modifier = Modifier
                 .fillMaxSize()
                 .background(LightBlue),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = CenterHorizontally
         ) {
             Card(
                 modifier = Modifier
@@ -93,7 +86,7 @@ fun Settings(navController: NavController, model: DataViewModel) {
                 Column(modifier = Modifier.padding(top = 20.dp)) {
                     TextTitle(id = R.string.change)
                     Row(
-                        verticalAlignment = Alignment.CenterVertically,
+                        verticalAlignment = CenterVertically,
                         horizontalArrangement = Arrangement.SpaceEvenly,
                         modifier = Modifier
                             .padding(top = 10.dp, bottom = 20.dp)
@@ -101,7 +94,7 @@ fun Settings(navController: NavController, model: DataViewModel) {
                             .height(60.dp)
                     ) {
                         Row(
-                            verticalAlignment = Alignment.CenterVertically, modifier = Modifier
+                            verticalAlignment = CenterVertically, modifier = Modifier
                                 .padding(start = 10.dp)
                                 .background(LightGray)
                                 .width((cardSize * 0.8).dp)
@@ -178,13 +171,8 @@ fun Settings(navController: NavController, model: DataViewModel) {
             Card(
                 modifier = Modifier
                     .padding(bottom = 20.dp)
-                    .width(cardSize.dp)
+                    .width(cardSize.dp).height(cardHeight.dp)
                     .padding(top = 20.dp)
-                    .onGloballyPositioned { coordinates ->
-                        run {
-                            columnHeight = coordinates.size.height.toFloat()
-                        }
-                    }
             ) {
                 Column(
                     modifier = Modifier.fillMaxSize(),
@@ -220,7 +208,7 @@ fun Settings(navController: NavController, model: DataViewModel) {
 
                     Column(
                         modifier = Modifier
-                            .height((columnHeight * 0.26).dp)
+                            .height((cardHeight * 0.7).dp)
                             .verticalScroll(rememberScrollState())
                     ) {
                         for (item in data) {
