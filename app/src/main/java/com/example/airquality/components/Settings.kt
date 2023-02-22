@@ -15,9 +15,7 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -54,10 +52,8 @@ fun Settings(navController: NavController, model: DataViewModel) {
 
         // get size of phone's screen
         val screenPixelDensity = LocalContext.current.resources.displayMetrics.density
-        val dpValue = Resources.getSystem().displayMetrics.widthPixels / screenPixelDensity
-        val cardSize = dpValue * 0.9
-        val screenHeight = Resources.getSystem().displayMetrics.heightPixels / screenPixelDensity
-        val cardHeight = screenHeight * 0.8
+        val screenWidth = Resources.getSystem().displayMetrics.widthPixels / screenPixelDensity
+        val cardWidth = screenWidth * 0.9
 
         val data = listOf(
             SliderData(0, "Pm10", 1f, 0.0f, 60.0f),
@@ -80,7 +76,7 @@ fun Settings(navController: NavController, model: DataViewModel) {
         ) {
             Card(
                 modifier = Modifier
-                    .width(cardSize.dp)
+                    .width(cardWidth.dp)
                     .padding(top = 20.dp)
             ) {
                 Column(modifier = Modifier.padding(top = 20.dp)) {
@@ -97,7 +93,7 @@ fun Settings(navController: NavController, model: DataViewModel) {
                             verticalAlignment = CenterVertically, modifier = Modifier
                                 .padding(start = 10.dp)
                                 .background(LightGray)
-                                .width((cardSize * 0.8).dp)
+                                .width((cardWidth * 0.8).dp)
                         ) {
                             Text(
                                 text = "ISD",
@@ -171,7 +167,7 @@ fun Settings(navController: NavController, model: DataViewModel) {
             Card(
                 modifier = Modifier
                     .padding(bottom = 20.dp)
-                    .width(cardSize.dp).height(cardHeight.dp)
+                    .width(cardWidth.dp)
                     .padding(top = 20.dp)
             ) {
                 Column(
@@ -208,8 +204,8 @@ fun Settings(navController: NavController, model: DataViewModel) {
 
                     Column(
                         modifier = Modifier
-                            .height((cardHeight * 0.7).dp)
-                            .verticalScroll(rememberScrollState())
+                            //.height((cardHeight * 0.7).dp)
+                            .verticalScroll(rememberScrollState()).weight(weight =1f, fill = false)
                     ) {
                         for (item in data) {
                             SampleSlider(
@@ -228,7 +224,7 @@ fun Settings(navController: NavController, model: DataViewModel) {
                             model.minArray.postValue(minValueInit)
                             model.maxArray.postValue(maxValueInit)
                         },
-                        modifier = Modifier.align(CenterHorizontally).padding(top = 10.dp),
+                        modifier = Modifier.align(CenterHorizontally).padding(top = 10.dp, bottom = 10.dp),
                         colors = ButtonDefaults.buttonColors(backgroundColor = LightBlue)
                     ) {
                         Text(
