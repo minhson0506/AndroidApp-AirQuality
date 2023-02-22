@@ -49,6 +49,8 @@ fun ChartPage(model: DataViewModel) {
 
     val indicator: String by model.indicator.observeAsState("PM10")
 
+    val imageIndicator: Int by model.imageIndicator.observeAsState(R.drawable.wind)
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -85,7 +87,7 @@ fun ChartPage(model: DataViewModel) {
                         modifier = Modifier.padding(bottom = 20.dp, start = 10.dp, top = 10.dp)
                     ) {
                         Image(
-                            painterResource(id = R.drawable.wind),
+                            painterResource(id = imageIndicator),
                             contentDescription = "",
                             modifier = Modifier
                                 .size(30.dp)

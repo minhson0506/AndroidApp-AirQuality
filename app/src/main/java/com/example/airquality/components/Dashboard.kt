@@ -263,7 +263,7 @@ fun Dashboard(model: DataViewModel) {
                         onDismissRequest = { popupControl = false }) {
                         Box(
                             Modifier
-                                .size(300.dp, 100.dp)
+                                .size(300.dp, 150.dp)
                                 .padding(top = 5.dp)
                                 .background(LightBlue, RoundedCornerShape(10.dp))
                                 .border(1.dp, color = Color.Black, RoundedCornerShape(10.dp))
@@ -284,9 +284,18 @@ fun Dashboard(model: DataViewModel) {
 //                                    )
 //                                }
                                 if (it != null) {
-                                    Text(text = it.desc + " " + it.outside, color = Color.Black,
-                                        modifier = Modifier.padding(vertical = 5.dp),
-                                        fontFamily = medium)
+                                    Column() {
+                                        Text(text = it.desc, color = Color.Black,
+                                            modifier = Modifier.padding(vertical = 5.dp),
+                                            fontFamily = medium)
+                                        if(it.outside != "") {
+                                            Text(
+                                                text = it.outside + " "+  it.unit, color = Color.Black,
+                                                modifier = Modifier.padding(vertical = 5.dp),
+                                                fontFamily = medium
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }

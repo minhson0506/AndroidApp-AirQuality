@@ -25,6 +25,7 @@ import java.net.Socket
 import java.net.SocketAddress
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors.newFixedThreadPool
+import kotlin.concurrent.thread
 
 fun disconnectWifi(context: Context, wifiNetwork: String) {
     WifiUtils.withContext(context)
@@ -89,63 +90,75 @@ fun connectDevice(
                 Log.d(MainActivity.tag, "success connect wifi: ")
                 model.isOnline.postValue(false)
                 // get data from device and insert to Room
-                ApiDevice.apiInstance().getAll().enqueue(object : Callback<List<SensorResponse>> {
-                    override fun onResponse(
-                        call: Call<List<SensorResponse>>,
-                        response: Response<List<SensorResponse>>,
-                    ) {
-                        if (response.isSuccessful) {
-                            response.body()?.forEach {
-                                if (sensorData == null) {
-                                    model.insert(SensorModel(
-                                        id = 0,
-                                        alt = it.alt,
-                                        co2 = it.co2,
-                                        deviceId = it.deviceId,
-                                        deviceName = it.deviceName,
-                                        hum = it.hum,
-                                        lux = it.lux,
-                                        noise = it.noise,
-                                        pm1 = it.pm1,
-                                        pm10 = it.pm10,
-                                        pm2 = it.pm2,
-                                        pm4 = it.pm4,
-                                        pres = it.pres,
-                                        temp = it.temp,
-                                        time = it.time,
-                                    ))
-                                } else if (!sensorData?.map { item -> item.time }?.contains(it.time)!!) {
-                                    model.insert(SensorModel(
-                                        id = 0,
-                                        alt = it.alt,
-                                        co2 = it.co2,
-                                        deviceId = it.deviceId,
-                                        deviceName = it.deviceName,
-                                        hum = it.hum,
-                                        lux = it.lux,
-                                        noise = it.noise,
-                                        pm1 = it.pm1,
-                                        pm10 = it.pm10,
-                                        pm2 = it.pm2,
-                                        pm4 = it.pm4,
-                                        pres = it.pres,
-                                        temp = it.temp,
-                                        time = it.time,
-                                    ))
+                thread {
+                    ApiDevice.apiInstance().getAll()
+                        .enqueue(object : Callback<List<SensorResponse>> {
+                            override fun onResponse(
+                                call: Call<List<SensorResponse>>,
+                                response: Response<List<SensorResponse>>,
+                            ) {
+                                if (response.isSuccessful) {
+                                    response.body()?.forEach {
+                                        if (sensorData == null) {
+                                            model.insert(
+                                                SensorModel(
+                                                    id = 0,
+                                                    alt = it.alt,
+                                                    co2 = it.co2,
+                                                    deviceId = it.deviceId,
+                                                    deviceName = it.deviceName,
+                                                    hum = it.hum,
+                                                    lux = it.lux,
+                                                    noise = it.noise,
+                                                    pm1 = it.pm1,
+                                                    pm10 = it.pm10,
+                                                    pm2 = it.pm2,
+                                                    pm4 = it.pm4,
+                                                    pres = it.pres,
+                                                    temp = it.temp,
+                                                    time = it.time,
+                                                )
+                                            )
+                                        } else if (!sensorData?.map { item -> item.time }
+                                                ?.contains(it.time)!!) {
+                                            model.insert(
+                                                SensorModel(
+                                                    id = 0,
+                                                    alt = it.alt,
+                                                    co2 = it.co2,
+                                                    deviceId = it.deviceId,
+                                                    deviceName = it.deviceName,
+                                                    hum = it.hum,
+                                                    lux = it.lux,
+                                                    noise = it.noise,
+                                                    pm1 = it.pm1,
+                                                    pm10 = it.pm10,
+                                                    pm2 = it.pm2,
+                                                    pm4 = it.pm4,
+                                                    pres = it.pres,
+                                                    temp = it.temp,
+                                                    time = it.time,
+                                                )
+                                            )
+                                        }
+
+                                    }
                                 }
                             }
-                        }
-                    }
-
-                    override fun onFailure(call: Call<List<SensorResponse>>, t: Throwable) {
-                        Log.d(MainActivity.tag, "onFailure: when get all data")
-                    }
-                })
+                            override fun onFailure(call: Call<List<SensorResponse>>, t: Throwable) {
+                                Log.d(
+                                    MainActivity.tag,
+                                    "onFailure: when get all data, ${t.message}"
+                                )
+                            }
+                        })
+                }
 
                 // wait for getting all data
                 Thread.sleep(2000)
                 // navigate to Dashboard
                 navController.navigate("main")
+
             }
 
             override fun failed(errorCode: ConnectionErrorCode) {

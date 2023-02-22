@@ -14,13 +14,17 @@ import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterVertically
+import androidx.compose.ui.Alignment.Companion.End
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.airquality.MainActivity
 import com.example.airquality.R
@@ -30,10 +34,7 @@ import com.example.airquality.services.DataViewModel
 import com.example.airquality.services.room.SensorModel
 import com.example.airquality.services.sensors.ApiDevice
 import com.example.airquality.services.sensors.Name
-import com.example.airquality.ui.theme.AirQualityTheme
-import com.example.airquality.ui.theme.LightBlue
-import com.example.airquality.ui.theme.LightGray
-import com.example.airquality.ui.theme.bold
+import com.example.airquality.ui.theme.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -59,14 +60,14 @@ fun Settings(navController: NavController, model: DataViewModel) {
         val cardSize = dpValue * 0.9
 
         val data = listOf(
-            SliderData(0, "Pm10", 0.01f, 0.2f, 1.0f),
-            SliderData(1, "Pm2.5", 0.01f, 0.2f, 2.0f),
-            SliderData(2, "Pm1", 0.01f, 0.2f, 1.0f),
-            SliderData(3, "Pm4", 0.01f, 0.2f, 1.0f),
-            SliderData(4, "CO2", 10f, 100f, 800f),
-            SliderData(5, "Humidity", 1f, 1f, 30f),
-            SliderData(6, "Light", 10f, 10f, 60f),
-            SliderData(7, "Noise", 10f, 10f, 150f),
+            SliderData(0, "Pm10", 1f, 0.0f, 60.0f),
+            SliderData(1, "Pm2.5", 0.1f, 0.0f, 20.0f),
+            SliderData(2, "Pm1", 1f, 0.0f, 60.0f),
+            SliderData(3, "Pm4", 1f, 0.0f, 60.0f),
+            SliderData(4, "CO2", 10f, 0.0f, 6000f),
+            SliderData(5, "Humidity", 1f, 30.0f, 80.0f),
+            SliderData(6, "Light", 10f, 0.0f, 400.0f),
+            SliderData(7, "Noise", 1f, 0.0f, 40.0f),
             SliderData(8, "Pressure", 10f, 900f, 1100f),
             SliderData(9, "Temperature", 1f, 10f, 55f)
         )
@@ -101,7 +102,8 @@ fun Settings(navController: NavController, model: DataViewModel) {
                             Text(
                                 text = "ISD",
                                 fontFamily = bold,
-                                modifier = Modifier.padding(start = 10.dp)
+                                fontSize = 18.sp,
+                                modifier = Modifier.padding(start = 10.dp),
                             )
                             text?.let {
                                 TextField(
@@ -129,19 +131,18 @@ fun Settings(navController: NavController, model: DataViewModel) {
                                     ) {
                                         if (response.isSuccessful) {
                                             Log.d(MainActivity.tag, "onResponse: ${response.body()}")
-                                            // wait to restart hardware
-                                            Thread.sleep(2000)
+                                            model.wifiNetworks.postValue(null)
                                             // navigate to landing page
                                             navController.navigate("landingPage")
+                                            Toast.makeText(context, "Device name changed!", Toast.LENGTH_SHORT).show()
+
                                         }
                                     }
 
                                     override fun onFailure(call: Call<String>, t: Throwable) {
                                         Log.d(MainActivity.tag, "onFailure: change device name fail with ${t.message}")
-                                        // wait to restart hardware
-                                        Thread.sleep(2000)
                                         // navigate to landing page
-//                                        navController.navigate("landingPage")
+                                       navController.navigate("landingPage")
                                     }
                                 })
                             }

@@ -8,6 +8,7 @@ import androidx.paging.DataSource
 import androidx.paging.PagedList
 import androidx.paging.toLiveData
 import coil.compose.ImagePainter
+import com.example.airquality.R
 import com.example.airquality.services.room.RoomDB
 import com.example.airquality.services.room.SensorModel
 import com.example.airquality.services.weather.WeatherResponse
@@ -32,6 +33,7 @@ class DataViewModel(application: Application): AndroidViewModel(application) {
 //    val sensorData = MutableLiveData<SensorResponse>(null)
 
     val indicator = MutableLiveData<String>("PM10")
+    val imageIndicator = MutableLiveData(R.drawable.wind)
     // data from Room
     private val roomDB = RoomDB.getInstance(application)
     private val viewModelJob = Job()

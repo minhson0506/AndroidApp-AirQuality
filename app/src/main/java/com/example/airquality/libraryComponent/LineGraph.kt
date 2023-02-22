@@ -21,6 +21,7 @@ import androidx.navigation.NavController
 import com.example.airquality.MainActivity
 import com.example.airquality.services.DataViewModel
 import com.example.airquality.services.room.SensorModel
+import com.example.airquality.ui.theme.Green
 import com.example.airquality.ui.theme.Red
 import com.example.airquality.ui.theme.Yellow
 import com.github.mikephil.charting.charts.LineChart
@@ -100,21 +101,21 @@ fun LineGraph(model: DataViewModel, date: String, indicator: String) {
                         ?.let { it2 -> DataPoint(it2.toFloat(), it1) }
                 }
                 ?.let { it2 -> listData.add(it2) }
-            if (length > 1) if (length < 3) {
+            /*if (length > 1) if (length < 3) {
                 it[1]?.value?.toFloat()
                     ?.let { it1 ->
                         it[1]?.time?.split(",")?.get(1)?.trim()?.split(":")?.get(0)
                             ?.let { it2 -> DataPoint(it2.toFloat(), it1) }
                     }
-                    ?.let { it2 -> listData.add(it2) }
-            } else {
+                    ?.let { it2 -> listData.add(it2) }*/
+            //} else {
                 it[length / 2]?.value?.toFloat()
                     ?.let { it1 ->
                         it[length / 2]?.time?.split(",")?.get(1)?.trim()?.split(":")?.get(0)
                             ?.let { it2 -> DataPoint(it2.toFloat(), it1) }
                     }
                     ?.let { it2 -> listData.add(it2) }
-            }
+           // }
         }
         if (dataDisplay != listData) {
             Log.d(MainActivity.tag, "LineGraph: update $listData")
@@ -143,7 +144,7 @@ fun LineGraph(model: DataViewModel, date: String, indicator: String) {
                 listOf(
                     LinePlot.Line(
                         dataDisplay as List<DataPoint>,
-                        LinePlot.Connection(color = Red),
+                        LinePlot.Connection(color = Green),
                         LinePlot.Intersection(color = Red),
                         LinePlot.Highlight(color = Yellow),
                     )

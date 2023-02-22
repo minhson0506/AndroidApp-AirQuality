@@ -22,9 +22,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.airquality.MainActivity
-import com.example.airquality.services.DataViewModel
-import com.example.airquality.services.maxValueInit
-import com.example.airquality.services.minValueInit
+import com.example.airquality.services.*
 import com.example.airquality.ui.theme.*
 import com.madrapps.plot.line.DataPoint
 import com.madrapps.plot.line.LineGraph
@@ -129,21 +127,8 @@ fun NumberText(
 @Composable
 fun DropDownComp(model: DataViewModel) {
 
-    val listItems = arrayOf(
-        "PM10",
-        "Pm2.5",
-        "Pm1",
-        "Pm4",
-        "CO2",
-        "Humidity",
-        "Light",
-        "Noise",
-        "Pressure",
-        "Temperature"
-    )
-
     var selectedItem by remember {
-        mutableStateOf(listItems[4])
+        mutableStateOf(listItems[0])
     }
 
     var expanded by remember {
@@ -181,6 +166,7 @@ fun DropDownComp(model: DataViewModel) {
                 DropdownMenuItem(onClick = {
                     selectedItem = selectedOption
                     model.indicator.postValue(selectedOption)
+                    model.imageIndicator.postValue(itemImages[listItems.indexOf(selectedOption)])
 //                    Toast.makeText(contextForToast, selectedOption, Toast.LENGTH_SHORT).show()
                     expanded = false
                 }) {
