@@ -144,7 +144,7 @@ fun LineGraph(model: DataViewModel, date: String, indicator: String) {
                 listOf(
                     LinePlot.Line(
                         dataDisplay as List<DataPoint>,
-                        LinePlot.Connection(color = Green),
+                        LinePlot.Connection(color = Red),
                         LinePlot.Intersection(color = Red),
                         LinePlot.Highlight(color = Yellow),
                     )

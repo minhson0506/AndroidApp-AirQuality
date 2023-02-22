@@ -14,12 +14,15 @@ import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Alignment.Companion.End
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,6 +34,8 @@ import com.example.airquality.R
 import com.example.airquality.libraryComponent.SampleSlider
 import com.example.airquality.libraryComponent.TextTitle
 import com.example.airquality.services.DataViewModel
+import com.example.airquality.services.maxValueInit
+import com.example.airquality.services.minValueInit
 import com.example.airquality.services.room.SensorModel
 import com.example.airquality.services.sensors.ApiDevice
 import com.example.airquality.services.sensors.Name
@@ -47,8 +52,7 @@ fun Settings(navController: NavController, model: DataViewModel) {
     val sensorData: SensorModel? by model.getLatest().observeAsState()
 
 //    val deviceName by model.deviceName.observeAsState("")
-    if (sensorData != null)
-    {
+    if (sensorData != null) {
         var text by remember { mutableStateOf(sensorData?.deviceName?.split("ISD")?.get(1)) }
 
         Log.d(MainActivity.tag, "Settings: device name $text")
@@ -58,6 +62,9 @@ fun Settings(navController: NavController, model: DataViewModel) {
         val screenPixelDensity = LocalContext.current.resources.displayMetrics.density
         val dpValue = Resources.getSystem().displayMetrics.widthPixels / screenPixelDensity
         val cardSize = dpValue * 0.9
+
+        var columnHeight by remember { mutableStateOf(10f) }
+        Log.d(MainActivity.tag, "Settings: column height of card $columnHeight")
 
         val data = listOf(
             SliderData(0, "Pm10", 1f, 0.0f, 60.0f),
@@ -124,27 +131,38 @@ fun Settings(navController: NavController, model: DataViewModel) {
                             // post change device name and navigator to landing page
 //                        model.deviceName.postValue(text)
                             if (text != null) {
-                                ApiDevice.apiInstance().changeName(Name(text!!)).enqueue(object : Callback<String> {
-                                    override fun onResponse(
-                                        call: Call<String>,
-                                        response: Response<String>
-                                    ) {
-                                        if (response.isSuccessful) {
-                                            Log.d(MainActivity.tag, "onResponse: ${response.body()}")
-                                            model.wifiNetworks.postValue(null)
+                                ApiDevice.apiInstance().changeName(Name(text!!))
+                                    .enqueue(object : Callback<String> {
+                                        override fun onResponse(
+                                            call: Call<String>,
+                                            response: Response<String>
+                                        ) {
+                                            if (response.isSuccessful) {
+                                                Log.d(
+                                                    MainActivity.tag,
+                                                    "onResponse: ${response.body()}"
+                                                )
+                                                model.wifiNetworks.postValue(null)
+                                                // navigate to landing page
+                                                navController.navigate("landingPage")
+                                                Toast.makeText(
+                                                    context,
+                                                    "Device name changed!",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+
+                                            }
+                                        }
+
+                                        override fun onFailure(call: Call<String>, t: Throwable) {
+                                            Log.d(
+                                                MainActivity.tag,
+                                                "onFailure: change device name fail with ${t.message}"
+                                            )
                                             // navigate to landing page
                                             navController.navigate("landingPage")
-                                            Toast.makeText(context, "Device name changed!", Toast.LENGTH_SHORT).show()
-
                                         }
-                                    }
-
-                                    override fun onFailure(call: Call<String>, t: Throwable) {
-                                        Log.d(MainActivity.tag, "onFailure: change device name fail with ${t.message}")
-                                        // navigate to landing page
-                                       navController.navigate("landingPage")
-                                    }
-                                })
+                                    })
                             }
 
                         }) {
@@ -162,10 +180,17 @@ fun Settings(navController: NavController, model: DataViewModel) {
                     .padding(bottom = 20.dp)
                     .width(cardSize.dp)
                     .padding(top = 20.dp)
+                    .onGloballyPositioned { coordinates ->
+                        run {
+                            columnHeight = coordinates.size.height.toFloat()
+                        }
+                    }
             ) {
-                Column() {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                ) {
                     Row(
-                        verticalAlignment = Alignment.CenterVertically,
+                        verticalAlignment = CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -175,17 +200,29 @@ fun Settings(navController: NavController, model: DataViewModel) {
                             onCheckedChange = {
                                 model.enableNoti.postValue(it)
                                 if (it) {
-                                    Toast.makeText(context, "Notification is on!", Toast.LENGTH_SHORT)
+                                    Toast.makeText(
+                                        context,
+                                        "Notification is on!",
+                                        Toast.LENGTH_SHORT
+                                    )
                                         .show()
                                 } else {
-                                    Toast.makeText(context, "Notification is off!", Toast.LENGTH_SHORT)
+                                    Toast.makeText(
+                                        context,
+                                        "Notification is off!",
+                                        Toast.LENGTH_SHORT
+                                    )
                                         .show()
                                 }
                             }
                         )
                     }
 
-                    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                    Column(
+                        modifier = Modifier
+                            .height((columnHeight * 0.26).dp)
+                            .verticalScroll(rememberScrollState())
+                    ) {
                         for (item in data) {
                             SampleSlider(
                                 id = item.id,
@@ -198,6 +235,20 @@ fun Settings(navController: NavController, model: DataViewModel) {
                         }
                     }
 
+                    Button(
+                        onClick = {
+                            model.minArray.postValue(minValueInit)
+                            model.maxArray.postValue(maxValueInit)
+                        },
+                        modifier = Modifier.align(CenterHorizontally).padding(top = 10.dp),
+                        colors = ButtonDefaults.buttonColors(backgroundColor = LightBlue)
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.reset),
+                            fontFamily = bold,
+                            color = Red
+                        )
+                    }
                 }
 
             }
