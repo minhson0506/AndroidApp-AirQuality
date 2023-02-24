@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">AirQuality</string>
+    <string name="wifi">Choose device via Wifi</string>
+    <string name="cloud">Choose device via Cloud</string>
+    <string name="change">Change device name</string>
+    <string name="alert">Set notification</string>
+    <string name="reset">Reset to default</string>
+    <string name="outside">Outside is </string>
+</resources>
