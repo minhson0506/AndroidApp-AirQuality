@@ -20,7 +20,6 @@ import java.io.OutputStream
 import java.net.URL
 import kotlin.concurrent.thread
 
-
 @Composable
 fun GetWeather(model: DataViewModel) {
     val context = LocalContext.current
@@ -50,6 +49,7 @@ fun GetWeather(model: DataViewModel) {
                 }
             })
         Log.d(MainActivity.tag, "GetWeather: $weather")
+
         if (weather != null) {
             val destinationFile = "image.jpg"
             val url = URL("https:" + weather!!.current.condition.icon)
@@ -74,8 +74,7 @@ fun GetWeather(model: DataViewModel) {
                     Log.d(MainActivity.tag, "GetWeather: $error")
                 }
             }
-//            val image = rememberImagePainter(data = "https:" + weather!!.current.condition.icon)
-                model.image.postValue(path.absolutePath)
+            model.image.postValue(path.absolutePath)
         }
     }
 

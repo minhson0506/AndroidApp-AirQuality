@@ -17,19 +17,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.capitalize
-import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.airquality.MainActivity
 import com.example.airquality.R
-import com.example.airquality.libraryComponent.DropDownComp
-import com.example.airquality.libraryComponent.LineGraph
+import com.example.airquality.services.component.DropDownComp
 import com.example.airquality.services.DataViewModel
+import com.example.airquality.services.graph.LineGraph
 import com.example.airquality.ui.theme.*
 import com.mabn.calendarlibrary.ExpandableCalendar
 import com.mabn.calendarlibrary.core.calendarDefaultTheme
-import com.madrapps.plot.line.DataPoint
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -40,14 +37,13 @@ fun ChartPage(model: DataViewModel) {
     val dpValue = Resources.getSystem().displayMetrics.widthPixels / screenPixelDensity
     val cardSize = dpValue * 0.9
 
-
+    // get date of today
     val today = SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().time)
 
     Log.d(MainActivity.tag, "ChartPage: today $today")
     var date: String by remember { mutableStateOf(today) }
 
     val indicator: String by model.indicator.observeAsState("PM10")
-
     val imageIndicator: Int by model.imageIndicator.observeAsState(R.drawable.wind)
 
     Column(

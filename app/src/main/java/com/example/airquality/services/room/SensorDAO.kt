@@ -15,9 +15,6 @@ interface SensorDAO {
     @Update
     fun update(data: SensorModel)
 
-//    @Query("SELECT * FROM sensormodel")
-//    fun getAll(): LiveData<List<SensorModel>>
-
     @Query("SELECT * FROM sensormodel ORDER BY time")
     fun getAll(): DataSource.Factory<Int, SensorModel>
 

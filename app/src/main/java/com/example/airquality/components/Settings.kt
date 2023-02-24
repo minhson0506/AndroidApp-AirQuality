@@ -23,9 +23,10 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.airquality.MainActivity
 import com.example.airquality.R
-import com.example.airquality.libraryComponent.SampleSlider
-import com.example.airquality.libraryComponent.TextTitle
+import com.example.airquality.services.component.SampleSlider
+import com.example.airquality.services.component.TextTitle
 import com.example.airquality.services.DataViewModel
+import com.example.airquality.services.dataclass.SliderData
 import com.example.airquality.services.maxValueInit
 import com.example.airquality.services.minValueInit
 import com.example.airquality.services.room.SensorModel
@@ -46,7 +47,7 @@ fun Settings(navController: NavController, model: DataViewModel) {
     if (sensorData != null) {
         var text by remember { mutableStateOf(sensorData?.deviceName?.split("ISD")?.get(1)) }
 
-        val checkedState by model.enableNoti.observeAsState(false)
+        val checkedState by model.enableNotification.observeAsState(false)
 
         // get size of phone's screen
         val screenPixelDensity = LocalContext.current.resources.displayMetrics.density
@@ -180,7 +181,7 @@ fun Settings(navController: NavController, model: DataViewModel) {
                         Switch(
                             checked = checkedState,
                             onCheckedChange = {
-                                model.enableNoti.postValue(it)
+                                model.enableNotification.postValue(it)
                                 if (it) {
                                     Toast.makeText(
                                         context,
@@ -241,11 +242,3 @@ fun Settings(navController: NavController, model: DataViewModel) {
 
 
 }
-
-data class SliderData(
-    val id: Int,
-    val name: String,
-    val step: Float,
-    val min: Float,
-    val max: Float
-)

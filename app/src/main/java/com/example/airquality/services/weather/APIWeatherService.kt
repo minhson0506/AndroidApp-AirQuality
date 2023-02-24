@@ -1,7 +1,6 @@
 package com.example.airquality.services.weather
 
 import com.example.airquality.BuildConfig
-import com.example.airquality.services.sensors.SensorResponse
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

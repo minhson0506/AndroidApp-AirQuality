@@ -1,36 +1,25 @@
-package com.example.airquality.libraryComponent
+package com.example.airquality.services.graph
 
-import android.content.Context
 import android.content.res.Resources
-import android.location.GnssAntennaInfo.PhaseCenterOffset
 import android.util.Log
-import androidx.compose.foundation.focusable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.navigation.NavController
 import com.example.airquality.MainActivity
 import com.example.airquality.services.DataViewModel
+import com.example.airquality.services.dataclass.DataIndicator
 import com.example.airquality.services.room.SensorModel
-import com.example.airquality.ui.theme.Green
 import com.example.airquality.ui.theme.Red
 import com.example.airquality.ui.theme.Yellow
 import com.example.airquality.ui.theme.medium
-import com.github.mikephil.charting.charts.LineChart
-import com.github.mikephil.charting.components.Description
-import com.github.mikephil.charting.data.BarEntry
-import com.github.mikephil.charting.data.Entry
-import com.github.mikephil.charting.data.LineData
-import com.github.mikephil.charting.data.LineDataSet
-import com.github.mikephil.charting.utils.ColorTemplate
 import com.madrapps.plot.line.DataPoint
 import com.madrapps.plot.line.LineGraph
 import com.madrapps.plot.line.LinePlot
@@ -87,7 +76,7 @@ fun LineGraph(model: DataViewModel, date: String, indicator: String) {
         }
 
         // less than 8 hours a day have data
-    } else if (time?.size ?: 0 > 0) {
+    } else if ((time?.size ?: 0) > 0) {
         val listData = mutableListOf<DataPoint>()
         time?.map {
             indicatorArray.filter { item ->
@@ -146,12 +135,7 @@ fun LineGraph(model: DataViewModel, date: String, indicator: String) {
                 .width(cardSize.dp)
                 .height(300.dp)
                 .onSizeChanged { },
-            onSelection = { xLine, points ->
-                // Do whatever you want here
-
-            }
-
-        )
+            )
     } else {
         Text(
             "No data for this day",
@@ -161,5 +145,3 @@ fun LineGraph(model: DataViewModel, date: String, indicator: String) {
         )
     }
 }
-
-internal class DataIndicator(val value: Double, val time: String)

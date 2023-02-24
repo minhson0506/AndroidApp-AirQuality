@@ -1,32 +1,26 @@
 package com.example.airquality.services
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Context
-import android.content.pm.PackageManager
 import android.os.Looper
 import android.util.Log
 import androidx.compose.runtime.Composable
-import androidx.core.app.ActivityCompat
+import com.example.airquality.MainActivity
 import com.google.android.gms.location.*
 import com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY
 
 @SuppressLint("MissingPermission", "SuspiciousIndentation")
 @Composable
-fun GetLocation(context: Context, activity: Activity, model: DataViewModel) {
-    val tag = "venues"
-
+fun GetLocation(activity: Activity, model: DataViewModel) {
     val fusedLocationClient: FusedLocationProviderClient =
         LocationServices.getFusedLocationProviderClient(activity)
 
-        fusedLocationClient.lastLocation.addOnSuccessListener {
-            Log.d(
-                tag,
-                "last location latitude: ${it?.latitude} and longitude: ${it?.longitude}"
-            )
-        }
-
+    fusedLocationClient.lastLocation.addOnSuccessListener {
+        Log.d(
+            MainActivity.tag,
+            "last location latitude: ${it?.latitude} and longitude: ${it?.longitude}"
+        )
+    }
 
     // callback function
     val locationCallback: LocationCallback = object : LocationCallback() {

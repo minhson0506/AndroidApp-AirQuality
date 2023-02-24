@@ -36,7 +36,6 @@ fun disconnectWifi(context: Context, wifiNetwork: String) {
 
             override fun failed(errorCode: DisconnectionErrorCode) {
                 Log.d(MainActivity.tag, "disconnect fail: ")
-
             }
         })
 }
@@ -79,9 +78,6 @@ fun connectDevice(
     model: DataViewModel,
 ) {
     val data: List<SensorModel>? by model.getAllData().observeAsState(null)
-
-//    removeWifi(context, ssid)
-//    Thread.sleep(100)
 
     val sensorData = data?.filter { it != null }
     WifiUtils.withContext(context).connectWith(ssid, "sensor22").setTimeout(40000)
@@ -145,6 +141,7 @@ fun connectDevice(
                                     }
                                 }
                             }
+
                             override fun onFailure(call: Call<List<SensorResponse>>, t: Throwable) {
                                 Log.d(
                                     MainActivity.tag,

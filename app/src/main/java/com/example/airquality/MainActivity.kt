@@ -33,7 +33,6 @@ import com.example.airquality.services.GetLocation
 import com.example.airquality.ui.theme.*
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
-
 class MainActivity : ComponentActivity() {
 
     companion object {
@@ -55,7 +54,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             val mainNavController = rememberNavController()
 
-
             AirQualityTheme {
                 // change status bar color
                 val systemUiController = rememberSystemUiController()
@@ -66,7 +64,7 @@ class MainActivity : ComponentActivity() {
                     )
                 }
                 // start get phone location
-                GetLocation(this, this, model)
+                GetLocation(this, model)
                 // A surface container using the 'background' color from the theme
                 Surface(modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background) {
@@ -76,7 +74,6 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("main") {
                             MainScreen(mainNavController, model = model)
-//                            NavigationGraph(navController = navController, model = model)
                         }
 
                     }
@@ -105,8 +102,9 @@ sealed class BottomNavItem(var title: String, var icon: Int, var screen_route: S
 
 @ExperimentalFoundationApi
 @Composable
-fun NavigationGraph( mainNavController: NavController,
-    navController: NavHostController, model: DataViewModel
+fun NavigationGraph(
+    mainNavController: NavController,
+    navController: NavHostController, model: DataViewModel,
 ) {
     NavHost(navController, startDestination = BottomNavItem.Home.screen_route) {
         composable(BottomNavItem.Home.screen_route) {
@@ -146,13 +144,14 @@ fun BottomNavigationBar(navController: NavController) {
                         painterResource(id = item.icon),
                         contentDescription = item.title,
                         modifier = Modifier.size(25.dp),
-                        colorFilter = if(selected) ColorFilter.tint(color = Blue) else ColorFilter.tint(color = DarkGray)
+                        colorFilter = if (selected) ColorFilter.tint(color = Blue) else ColorFilter.tint(
+                            color = DarkGray)
                     )
                 },
                 label = {
                     Text(
                         text = item.title,
-                        color = if(selected) Blue else Color.Black,
+                        color = if (selected) Blue else Color.Black,
                         fontFamily = regular
                     )
                 },
@@ -207,9 +206,11 @@ fun MainScreen(mainNavController: NavController, model: DataViewModel) {
 }
 
 fun checkPermission(activity: Activity) {
-    if(Build.VERSION.SDK_INT >= 33) {
-        if((activity.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) || (activity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) ||
-            (activity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)) {
+    if (Build.VERSION.SDK_INT >= 33) {
+        if ((activity.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) || (activity.checkSelfPermission(
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) ||
+            (activity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        ) {
             Log.d(MainActivity.tag, "No permission for notification")
             activity.requestPermissions(
                 arrayOf(
@@ -218,7 +219,8 @@ fun checkPermission(activity: Activity) {
                     Manifest.permission.ACCESS_COARSE_LOCATION,
                 ), 1
             )
-            while ((activity.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) || (activity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) ||
+            while ((activity.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) || (activity.checkSelfPermission(
+                    Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) ||
                 (activity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
             ) {
                 Thread.sleep(100)

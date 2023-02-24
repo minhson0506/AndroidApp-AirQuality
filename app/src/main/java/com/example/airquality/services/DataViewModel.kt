@@ -4,10 +4,8 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.paging.DataSource
 import androidx.paging.PagedList
 import androidx.paging.toLiveData
-import coil.compose.ImagePainter
 import com.example.airquality.R
 import com.example.airquality.services.room.RoomDB
 import com.example.airquality.services.room.SensorModel
@@ -16,10 +14,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import java.io.File
-import kotlin.math.max
 
-class DataViewModel(application: Application): AndroidViewModel(application) {
+class DataViewModel(application: Application) : AndroidViewModel(application) {
     // store list of Wifi networks
     val wifiNetworks = MutableLiveData<List<String>>(null)
 
@@ -29,24 +25,23 @@ class DataViewModel(application: Application): AndroidViewModel(application) {
 
     // check connection
     val isOnline = MutableLiveData<Boolean>(true)
-    // store data of sensor in inside
-//    val sensorData = MutableLiveData<SensorResponse>(null)
 
     val indicator = MutableLiveData<String>("PM10")
     val imageIndicator = MutableLiveData(R.drawable.wind)
+
     // data from Room
     private val roomDB = RoomDB.getInstance(application)
     private val viewModelJob = Job()
     private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Default)
 
-    // get and set data of venues
-//    fun getAllData(): LiveData<List<SensorModel>> = roomDB.sensorDao().getAll()
-
+    // get and set data of sensors
     fun getLatest(): LiveData<SensorModel> = roomDB.sensorDao().getLatest()
 
-    fun getDataInDate(date: String): LiveData<List<SensorModel>> = roomDB.sensorDao().getDataInDate(date = date)
+    fun getDataInDate(date: String): LiveData<List<SensorModel>> =
+        roomDB.sensorDao().getDataInDate(date = date)
 
-    fun getAllData(): LiveData<PagedList<SensorModel>> = roomDB.sensorDao().getAll().toLiveData(pageSize = 5000)
+    fun getAllData(): LiveData<PagedList<SensorModel>> =
+        roomDB.sensorDao().getAll().toLiveData(pageSize = 5000)
 
     fun insert(sensorModel: SensorModel) {
         coroutineScope.launch {
@@ -75,9 +70,6 @@ class DataViewModel(application: Application): AndroidViewModel(application) {
     val maxArray = MutableLiveData(maxValueInit)
 
     // notification
-    val enableNoti = MutableLiveData(false)
-
-    // device name
-//    val deviceName = MutableLiveData("")
+    val enableNotification = MutableLiveData(false)
 
 }

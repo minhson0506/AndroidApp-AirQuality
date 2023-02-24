@@ -1,7 +1,6 @@
 package com.example.airquality.components
 
 import android.content.res.Resources
-import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,12 +22,10 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import androidx.navigation.NavController
-import com.example.airquality.MainActivity
 import com.example.airquality.R
 import com.example.airquality.services.DataViewModel
 import com.example.airquality.services.GetWeather
 import com.example.airquality.services.connectDevice
-import com.example.airquality.services.room.SensorModel
 import com.example.airquality.services.scanWifi
 import com.example.airquality.ui.theme.*
 
@@ -133,6 +130,7 @@ fun LandingPage(model: DataViewModel, navController: NavController) {
             }
         }
 
+        // connect wifi netwoek
         if (wifiName != null) {
             connectDevice(
                 ssid = wifiName!!,
@@ -176,9 +174,8 @@ fun LandingPage(model: DataViewModel, navController: NavController) {
                     .height(60.dp),
                 colors = ButtonDefaults.buttonColors(backgroundColor = LightBlue),
                 onClick = {
-                    // for cloud
+                    // for cloud in phase 2
                     navController.navigate("main")
-
                 }
             ) {
                 Text(

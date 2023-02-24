@@ -1,22 +1,12 @@
-package com.example.airquality.libraryComponent
+package com.example.airquality.services.component
 
-import android.content.res.Resources
 import android.util.Log
-import android.widget.Toast
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
@@ -24,9 +14,6 @@ import androidx.compose.ui.unit.sp
 import com.example.airquality.MainActivity
 import com.example.airquality.services.*
 import com.example.airquality.ui.theme.*
-import com.madrapps.plot.line.DataPoint
-import com.madrapps.plot.line.LineGraph
-import com.madrapps.plot.line.LinePlot
 import kotlin.math.roundToInt
 
 // TextView
@@ -154,14 +141,8 @@ fun SampleSlider(id: Int, text: String, min: Float, max: Float, step: Float, mod
 
     //var range by remember { mutableStateOf(min..max) }
     var range = minValue[id]..maxValue[id]
-    Log.d(MainActivity.tag, "SampleSlider: range ${range.start} + end: ${range.endInclusive}")
-    Log.d(
-        MainActivity.tag,
-        "SampleSlider: format ${(range.start * 10).roundToInt() / 10.0} + end: ${(range.endInclusive * 10).roundToInt() / 10.0}"
-    )
 
     val stepDisplay = if (step > 0.1) 10 else 100
-
 
     Column(modifier = Modifier.padding(10.dp)) {
         NormalText(text = text)

@@ -5,4 +5,5 @@
     <string name="change">Change device name</string>
     <string name="alert">Set notification</string>
     <string name="reset">Reset to default</string>
+    <string name="outside">Outside is </string>
 </resources>
