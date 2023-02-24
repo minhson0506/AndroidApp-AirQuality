@@ -28,6 +28,8 @@ The indoor air quality monitoring application is designed to provide users with 
   <img src="https://user-images.githubusercontent.com/85672212/220933364-c054f6df-b342-4d45-88f9-4fe2b57a837b.jpg" width="250"> 
 </p> 
 
+## Video demo: 
+<p align="center">https://user-images.githubusercontent.com/85672212/221133431-c66b9913-ce1e-4526-a962-26c0b315f2b4.mp4</p>
 
 ## Installation
 
@@ -37,18 +39,17 @@ $ git clone https://github.com/minhson0506/AndroidApp-AirQuality.git
 ```
 2. Open project in Android Studio
 
-3. Retrieve API key for Weather information from 
+3. Retrieve API key for Weather information from ```https://www.weatherapi.com/docs/```
 
-//TODO
-
-4. Add API key to projects: In ```local.properties```, add line ```API_KEY=<YOUR_KEY>```
+4. Add your API key to projects: In ```local.properties```, add line ```API_KEY=<YOUR_KEY>```
 
 5. Build and run project to your Android phone.
 
 <strong> NOTE</strong>
-- Make sure you have Android with minimum SDK 26, Android Studio up-to-date!
+- Make sure you have Android with minimum SDK 29, Android Studio up-to-date!
 - Recommended NOT to run on Emulator since Wi-fi feature is not available on emulator.
 - Turn on Wifi, internet before starting the app (using phone settings). 
+- With Android SDK 29+, each foreground app can scan Wi-fi <strong>four times in a 2-minute</strong> period. (see Throttling info [here](https://developer.android.com/guide/topics/connectivity/wifi-scan))
 
 ## Contributors
 [My Mai](https://github.com/thuymymai)
