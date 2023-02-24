@@ -10,6 +10,7 @@ import com.example.airquality.MainActivity
 import com.example.airquality.services.room.SensorModel
 import com.example.airquality.services.sensors.ApiDevice
 import com.example.airquality.services.sensors.SensorResponse
+import com.example.airquality.services.sensors.getAllData
 import com.thanosfisherman.wifiutils.WifiUtils
 import com.thanosfisherman.wifiutils.wifiConnect.ConnectionErrorCode
 import com.thanosfisherman.wifiutils.wifiConnect.ConnectionSuccessListener
@@ -87,68 +88,7 @@ fun connectDevice(
                 model.isOnline.postValue(false)
                 // get data from device and insert to Room
                 thread {
-                    ApiDevice.apiInstance().getAll()
-                        .enqueue(object : Callback<List<SensorResponse>> {
-                            override fun onResponse(
-                                call: Call<List<SensorResponse>>,
-                                response: Response<List<SensorResponse>>,
-                            ) {
-                                if (response.isSuccessful) {
-                                    response.body()?.forEach {
-                                        if (sensorData == null) {
-                                            model.insert(
-                                                SensorModel(
-                                                    id = 0,
-                                                    alt = it.alt,
-                                                    co2 = it.co2,
-                                                    deviceId = it.deviceId,
-                                                    deviceName = it.deviceName,
-                                                    hum = it.hum,
-                                                    lux = it.lux,
-                                                    noise = it.noise,
-                                                    pm1 = it.pm1,
-                                                    pm10 = it.pm10,
-                                                    pm2 = it.pm2,
-                                                    pm4 = it.pm4,
-                                                    pres = it.pres,
-                                                    temp = it.temp,
-                                                    time = it.time,
-                                                )
-                                            )
-                                        } else if (!sensorData?.map { item -> item.time }
-                                                ?.contains(it.time)!!) {
-                                            model.insert(
-                                                SensorModel(
-                                                    id = 0,
-                                                    alt = it.alt,
-                                                    co2 = it.co2,
-                                                    deviceId = it.deviceId,
-                                                    deviceName = it.deviceName,
-                                                    hum = it.hum,
-                                                    lux = it.lux,
-                                                    noise = it.noise,
-                                                    pm1 = it.pm1,
-                                                    pm10 = it.pm10,
-                                                    pm2 = it.pm2,
-                                                    pm4 = it.pm4,
-                                                    pres = it.pres,
-                                                    temp = it.temp,
-                                                    time = it.time,
-                                                )
-                                            )
-                                        }
-
-                                    }
-                                }
-                            }
-
-                            override fun onFailure(call: Call<List<SensorResponse>>, t: Throwable) {
-                                Log.d(
-                                    MainActivity.tag,
-                                    "onFailure: when get all data, ${t.message}"
-                                )
-                            }
-                        })
+                    getAllData(sensorData = sensorData, model = model)
                 }
 
                 // wait for getting all data

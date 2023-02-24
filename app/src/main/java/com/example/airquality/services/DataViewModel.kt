@@ -23,6 +23,9 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
     val weather = MutableLiveData<WeatherResponse?>(null)
     val image = MutableLiveData<String?>(null)
 
+    // update all data
+    val isUpdated = MutableLiveData(false)
+
     // check connection
     val isOnline = MutableLiveData<Boolean>(true)
 
